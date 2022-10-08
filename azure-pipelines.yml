@@ -35,7 +35,8 @@ steps:
 
 - script: echo "{"
 - ${{ each parameter in parameters }}:
-  - script: echo '"${{ parameter.Key }}": "${{ parameter.Value }}",' >> variables.json
+  - script: |
+      echo '"${{ parameter.Key }}": "${{ parameter.Value }}",' >> variables.json
     displayName: Setting ${{ parameter.Key }} in Packer variables file
 - script: echo "}"
 

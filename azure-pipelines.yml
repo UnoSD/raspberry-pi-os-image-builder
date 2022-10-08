@@ -44,12 +44,10 @@ steps:
 
     # Find latest and pass as argument https://downloads.raspberrypi.org/raspios_lite_armhf/images/
 
-    cp $(PublicKey.secureFilePath) id_rsa.pub
-
     sudo ./packer build \
         -var "wifi_name=$(wifi_name)" \
         -var "wifi_password=$(wifi_password)" \
-        -var "ssh_pub_key_path=id_rsa.pub" \
+        -var "ssh_pub_key_path=$(PublicKey.secureFilePath)" \
         packer-raspberry-pi-os-lite.json
 
     zip -r rpi-arm-image.zip output-arm-image/image

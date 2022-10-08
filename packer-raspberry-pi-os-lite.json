@@ -14,7 +14,7 @@
   "provisioners": [
     {
       "type": "shell",
-      "inline": ["touch /boot/ssh"]
+      "inline": ["touch /boot/ssh;mkdir /home/pi/.ssh; chown pi:pi /home/pi/.ssh"]
     },
     {
       "type": "shell",

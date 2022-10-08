@@ -24,7 +24,7 @@
     },
     {
       "type": "file",
-      "source": "{{ssh_pub_key_path}}",
+      "source": "{{user `ssh_pub_key_path`}}",
       "destination": "/home/pi/.ssh/authorized_keys"
     },
     {

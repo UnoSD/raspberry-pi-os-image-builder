@@ -20,8 +20,8 @@ echo -e "\nPasswordAuthentication no" >> /etc/ssh/sshd_config
 
 echo nameserver 1.1.1.1 > /etc/resolv.conf
 
-apt-get update
-apt-get upgrade -y
+apt-get -qq update
+apt-get -qqy upgrade
 
 rm -f /etc/motd
 

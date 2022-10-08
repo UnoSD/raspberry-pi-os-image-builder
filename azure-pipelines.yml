@@ -23,6 +23,12 @@ parameters:
   default: $(wifi_password)
 - name: username
   default: $(username)
+- name: ip
+  default: $(ip)
+- name: subnet
+  default: $(subnet)
+- name: router
+  default: $(router)
 - name: ssh_public_key_path
   default: $(PublicKey.secureFilePath)
         

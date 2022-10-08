@@ -2,6 +2,9 @@
   "variables": {
     "wifi_ssid": "",
     "wifi_password": "",
+    "ip": null,
+    "subnet": null,
+    "router": null,
     "ssh_public_key_path": null,
     "username": null
   },
@@ -22,7 +25,12 @@
     },
     {
       "type": "shell",
-      "environment_vars": [ "USERNAME={{user `username`}}" ],
+      "environment_vars": [ 
+        "USERNAME={{user `username`}}",
+        "IP={{user `ip`}}",
+        "SUBNET={{user `subnet`}}",
+        "ROUTER={{user `router`}}"
+     ],
       "script": "./scripts/run.sh"
     },
     {

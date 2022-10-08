@@ -33,12 +33,16 @@ steps:
   inputs:
     secureFile: 'id_rsa.pub'
 
-- script: echo "{" > variables.json
+- script: echo -n "{" > variables.json
+  displayName: Open brackets in Packer variables file
 - ${{ each parameter in parameters }}:
   - script: |
-      echo '"${{ parameter.Key }}": "${{ parameter.Value }}",' >> variables.json
+      echo -n '"${{ parameter.Key }}": "${{ parameter.Value }}",' >> variables.json
     displayName: Setting ${{ parameter.Key }} in Packer variables file
-- script: echo "}" >> variables.json
+- script: |
+    truncate -s -1 variables.json
+    echo "}" >> variables.json
+  displayName: Close brackets in Packer variables file
 
 - script: |
     # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -50,7 +54,7 @@ steps:
     
     wget -q https://releases.hashicorp.com/packer/${{ variables.packer_version }}/packer_${{ variables.packer_version }}_linux_amd64.zip
 
-    unzip packer_${{ variables.packer_version }}_linux_amd64.zip
+    unzip -qq packer_${{ variables.packer_version }}_linux_amd64.zip
 
     PATH=$PATH:$(pwd)
 
@@ -59,11 +63,7 @@ steps:
     chmod +x packer-builder-arm-image
 
     # Find latest and pass as argument https://downloads.raspberrypi.org/raspios_lite_armhf/images/
-
     cat variables.json
-
-    env
-
     sudo ./packer build -var-file=variables.json packer-raspberry-pi-os-lite.json
 
     du -hs output-arm-image/image

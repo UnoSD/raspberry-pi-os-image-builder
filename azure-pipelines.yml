@@ -10,9 +10,11 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  packer_version: 1.6.6
-  packer_arm_builder_version: 0.1.6
 - group: Home
+- name: packer_version
+  value: 1.6.6
+- name: packer_arm_builder_version
+  value: 0.1.6
 
 parameters:
 - name: wifi_ssid

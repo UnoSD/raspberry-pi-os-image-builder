@@ -29,7 +29,7 @@
         "SSID={{user `wifi_ssid`}}",
         "WIFI_PASSWORD={{user `wifi_password`}}"
      ],
-      "script": "./scripts/run.sh"
+      "script": "./setup.sh"
     },
     {
       "type": "file",

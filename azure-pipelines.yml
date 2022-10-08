@@ -1,7 +1,6 @@
 # TODO:
-# Fix key upload
-# Remove password, use only SSH key
 # Fail pipeline on packer failure
+# Find latest and pass as argument from https://downloads.raspberrypi.org/raspios_lite_armhf/images/ for image_url/checksum
 
 trigger:
 - main
@@ -55,11 +54,6 @@ steps:
   displayName: Close brackets in Packer variables file
 
 - script: |
-    # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-    # sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-    # apt-get update
-    # sudo apt-get install -y packer
-    
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
     
     wget -q https://releases.hashicorp.com/packer/${{ variables.packer_version }}/packer_${{ variables.packer_version }}_linux_amd64.zip
@@ -71,10 +65,8 @@ steps:
     wget -q https://github.com/solo-io/packer-builder-arm-image/releases/download/v${{ variables.packer_arm_builder_version }}/packer-builder-arm-image
 
     chmod +x packer-builder-arm-image
-
-    # Find latest and pass as argument https://downloads.raspberrypi.org/raspios_lite_armhf/images/
     
-    sudo ./packer build -var-file=variables.json packer-raspberry-pi-os-lite.json
+    sudo ./packer build -var-file=variables.json packer.json
 
     du -hs output-arm-image/image
 

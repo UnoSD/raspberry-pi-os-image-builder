@@ -33,9 +33,11 @@ steps:
   inputs:
     secureFile: 'id_rsa.pub'
 
+- script: echo "{"
 - ${{ each parameter in parameters }}:
-  - script: echo "${{ parameter.Key }}=${{ parameter.Value }}" >> variables.pkrvars.hcl
+  - script: echo '"${{ parameter.Key }}": "${{ parameter.Value }}",' >> variables.json
     displayName: Setting ${{ parameter.Key }} in Packer variables file
+- script: echo "}"
 
 - script: |
     # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -43,7 +45,7 @@ steps:
     # apt-get update
     # sudo apt-get install -y packer
     
-    sudo apt-get install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
+    sudo apt-get -qq install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
     
     wget -q https://releases.hashicorp.com/packer/${{ variables.packer_version }}/packer_${{ variables.packer_version }}_linux_amd64.zip
 
@@ -57,11 +59,11 @@ steps:
 
     # Find latest and pass as argument https://downloads.raspberrypi.org/raspios_lite_armhf/images/
 
-    cat variables.pkrvars.hcl
+    cat variables.json
 
     env
 
-    sudo ./packer build packer-raspberry-pi-os-lite.json
+    sudo ./packer build -var-file=variables.json packer-raspberry-pi-os-lite.json
 
     du -hs output-arm-image/image
 
@@ -69,9 +71,12 @@ steps:
     
     du -hs image.xz
   displayName: 'Build image'
-  env:
-    ${{ each parameter in parameters }}:
-      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
+# Presumably the Packer version supported by the
+# arm builder does not support PKR_VAR_* for setting 
+# variables; add this back when we can upgrade Packer.
+#  env:
+#    ${{ each parameter in parameters }}:
+#      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
 
 - task: PublishPipelineArtifact@1
   inputs:

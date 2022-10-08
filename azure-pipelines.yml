@@ -70,7 +70,7 @@ steps:
 
     du -hs output-arm-image/image
 
-    xz -v output-arm-image/image
+    xz -cv output-arm-image/image > image.xz
     
     du -hs image.xz
   displayName: 'Build image'

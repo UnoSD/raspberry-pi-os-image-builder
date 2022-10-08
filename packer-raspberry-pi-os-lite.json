@@ -22,7 +22,8 @@
     },
     {
       "type": "shell",
-      "script": "./scripts/run.sh {{user `username`}}"
+      "environment_vars": [ "USERNAME={{user `username`}}" ],
+      "script": "./scripts/run.sh"
     },
     {
       "type": "file",

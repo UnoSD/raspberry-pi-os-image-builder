@@ -1,7 +1,5 @@
 #!/usr/bin/env sh
 
-USERNAME=$1
-
 touch /boot/ssh
 #echo "$USERNAME:PASSWORD" >> /boot/userconf.txt
 mkdir /home/$USERNAME/.ssh

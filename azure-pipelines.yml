@@ -59,7 +59,7 @@ steps:
 
     cat variables.pkrvars.hcl
 
-    sudo ./packer build -var-file=variables.pkrvars.hcl packer-raspberry-pi-os-lite.json
+    sudo ./packer build packer-raspberry-pi-os-lite.json
 
     du -hs output-arm-image/image
 
@@ -67,6 +67,9 @@ steps:
     
     du -hs image.xz
   displayName: 'Build image'
+  env:
+    ${{ each parameter in parameters }}:
+      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
 
 - task: PublishPipelineArtifact@1
   inputs:

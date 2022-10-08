@@ -33,6 +33,9 @@ steps:
   inputs:
     secureFile: 'id_rsa.pub'
 
+- ${{ each parameter in parameters }}:
+  - script: echo "${{ parameter.Key }}=${{ parameter.Value }}" >> variables.pkrvars.hcl
+
 - script: |
     # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
     # sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
@@ -53,10 +56,7 @@ steps:
 
     # Find latest and pass as argument https://downloads.raspberrypi.org/raspios_lite_armhf/images/
 
-    sudo ./packer build \
-        ${{ each parameter in parameters }}:
-          -var "${{ parameter.Key }}=${{ parameter.Value }}" \
-        packer-raspberry-pi-os-lite.json
+    sudo ./packer build -var-file=variables.pkrvars.hcl packer-raspberry-pi-os-lite.json
 
     du -hs output-arm-image/image
 

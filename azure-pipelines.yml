@@ -31,6 +31,10 @@ parameters:
   default: $(router)
 - name: ssh_public_key_path
   default: $(PublicKey.secureFilePath)
+- name: image_url
+  default: https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-09-26/2022-09-22-raspios-bullseye-armhf-lite.img.xz
+- name: image_checksum
+  default: sha256:9bf5234efbadd2d39769486e0a20923d8526a45eba57f74cda45ef78e2b628da
         
 steps:
 - task: DownloadSecureFile@1

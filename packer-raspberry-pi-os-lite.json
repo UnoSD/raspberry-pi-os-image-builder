@@ -1,5 +1,7 @@
 {
   "variables": {
+    "image_url": null,
+    "image_checksum": null,
     "wifi_ssid": "",
     "wifi_password": "",
     "ip": null,
@@ -8,28 +10,24 @@
     "ssh_public_key_path": null,
     "username": null
   },
-  "sensitive-variables": ["wifi_password"],
+  "sensitive-variables": [ "wifi_password" ],
   "builders": [
     {
       "type": "arm-image",
-      "iso_url": "https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-09-26/2022-09-22-raspios-bullseye-armhf-lite.img.xz",
-      "iso_checksum": "sha256:9bf5234efbadd2d39769486e0a20923d8526a45eba57f74cda45ef78e2b628da"
+      "iso_url": "{{user `image_url`}}",
+      "iso_checksum": "{{user `image_checksum`}}"
     }
   ],
   "provisioners": [
-    {
-      "type": "shell",
-      "inline": [
-        "wpa_passphrase \"{{user `wifi_ssid`}}\" \"{{user `wifi_password`}}\" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf"
-      ]
-    },
     {
       "type": "shell",
       "environment_vars": [ 
         "USERNAME={{user `username`}}",
         "IP={{user `ip`}}",
         "SUBNET={{user `subnet`}}",
-        "ROUTER={{user `router`}}"
+        "ROUTER={{user `router`}}",
+        "SSID={{user `wifi_ssid`}}",
+        "WIFI_PASSWORD={{user `wifi_password`}}"
      ],
       "script": "./scripts/run.sh"
     },

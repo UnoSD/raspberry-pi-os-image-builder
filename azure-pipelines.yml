@@ -35,6 +35,7 @@ steps:
 
 - ${{ each parameter in parameters }}:
   - script: echo "${{ parameter.Key }}=${{ parameter.Value }}" >> variables.pkrvars.hcl
+    displayName: Setting ${{ parameter.Key }} in Packer variables file
 
 - script: |
     # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -55,6 +56,8 @@ steps:
     chmod +x packer-builder-arm-image
 
     # Find latest and pass as argument https://downloads.raspberrypi.org/raspios_lite_armhf/images/
+
+    cat variables.pkrvars.hcl
 
     sudo ./packer build -var-file=variables.pkrvars.hcl packer-raspberry-pi-os-lite.json
 

@@ -3,12 +3,15 @@
 wpa_passphrase "$SSID" "$WIFI_PASSWORD" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf
 
 touch /boot/ssh
+
 # Can we make it completely passwordless instead of a random 60 char passphrase?
 echo "$USERNAME:$(head -n 60 < /dev/urandom | tr -d '\n' | openssl passwd -6 -stdin)" >> /boot/userconf.txt
 
 mv /home/pi /home/uno
 
 useradd uno
+usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi uno
+deluser pi
 
 mkdir /home/$USERNAME/.ssh
 
@@ -18,8 +21,7 @@ echo -e "\nPasswordAuthentication no" >> /etc/ssh/sshd_config
 echo nameserver 1.1.1.1 > /etc/resolv.conf
 
 apt-get update
-#apt-get -y install --no-install-recommends curl
-apt-get upgrade
+apt-get upgrade -y
 
 rm -f /etc/motd
 

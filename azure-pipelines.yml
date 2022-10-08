@@ -60,19 +60,13 @@ steps:
 
     unzip -qq packer_${{ variables.packer_version }}_linux_amd64.zip
 
-    PATH=$PATH:$(pwd)
-
     wget -q https://github.com/solo-io/packer-builder-arm-image/releases/download/v${{ variables.packer_arm_builder_version }}/packer-builder-arm-image
 
     chmod +x packer-builder-arm-image
     
     sudo ./packer build -var-file=variables.json packer.json
-
-    du -hs output-arm-image/image
-
-    xz -cv output-arm-image/image > image.xz
     
-    du -hs image.xz
+    xz -cv output-arm-image/image > image.xz
   displayName: 'Build image'
 # Presumably the Packer version supported by the
 # arm builder does not support PKR_VAR_* for setting 
@@ -83,5 +77,5 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)/rpi-arm-image.zip'
+    targetPath: '$(System.DefaultWorkingDirectory)/image.xz'
     publishLocation: 'pipeline'

@@ -58,5 +58,5 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)/raspberry-pi-os-image-builder/rpi-arm-image.zip'
+    targetPath: '$(System.DefaultWorkingDirectory)/rpi-arm-image.zip'
     publishLocation: 'pipeline'

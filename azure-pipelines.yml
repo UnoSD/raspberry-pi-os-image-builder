@@ -4,7 +4,17 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  wifi_name: SSID
+  wifi_password: WIFIPASS
+
 steps:
+- task: DownloadSecureFile@1
+  name: PublicKey
+  displayName: 'Download public key'
+  inputs:
+    secureFile: 'id_rsa.pub'
+
 - script: |
     # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 
@@ -30,11 +40,16 @@ steps:
 
     git clone -b bullseye https://github.com/UnoSD/raspberry-pi-os-image-builder.git
 
+    # Find latest and pass as argument https://downloads.raspberrypi.org/raspios_lite_armhf/images/
+
     mv packer-builder-arm-image raspberry-pi-os-image-builder/
 
     cd raspberry-pi-os-image-builder
 
-    sudo ../packer build packer-raspberry-pi-os-lite.json
+    sudo ../packer build packer-raspberry-pi-os-lite.json \
+        -var "wifi_name=$(wifi_name)" \
+        -var "wifi_password=$(wifi_password)" \
+        -var "ssh_pub_key_path=$(PublicKey.secureFilePath)"
 
     du -hs output-arm-image/image
     

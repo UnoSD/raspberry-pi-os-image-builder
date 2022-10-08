@@ -33,12 +33,12 @@ steps:
   inputs:
     secureFile: 'id_rsa.pub'
 
-- script: echo "{"
+- script: echo "{" > variables.json
 - ${{ each parameter in parameters }}:
   - script: |
       echo '"${{ parameter.Key }}": "${{ parameter.Value }}",' >> variables.json
     displayName: Setting ${{ parameter.Key }} in Packer variables file
-- script: echo "}"
+- script: echo "}" >> variables.json
 
 - script: |
     # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -

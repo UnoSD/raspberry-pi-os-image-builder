@@ -18,8 +18,8 @@ variables:
 parameters:
 - name: wifi_ssid
   default: $(wifi_ssid)
-- name: wifi_password
-  default: $(wifi_password)
+- name: wpa_supplicant_path
+  default: $(WpaSupplicant.secureFilePath)
 - name: username
   default: $(username)
 - name: ip
@@ -41,6 +41,12 @@ steps:
   displayName: 'Download public key'
   inputs:
     secureFile: 'id_rsa.pub'
+
+- task: DownloadSecureFile@1
+  name: WpaSupplicant
+  displayName: 'Download wpa_supplicant.conf'
+  inputs:
+    secureFile: 'wpa_supplicant.conf'
 
 - script: echo -n "{" > variables.json
   displayName: Open brackets in Packer variables file

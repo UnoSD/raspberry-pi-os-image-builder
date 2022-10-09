@@ -1,10 +1,5 @@
 #!/bin/bash
 
-wpa_passphrase "${SSID}" "${WIFI_PASSWORD/\`/\\\`}" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf
-echo PIPPO > &2
-echo "${WIFI_PASSWORD}" > &2
-echo "${WIFI_PASSWORD/\`/\\\`}" > &2
-
 touch /boot/ssh
 
 # Can we make it completely passwordless instead of a random 60 char passphrase?

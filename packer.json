@@ -2,15 +2,13 @@
   "variables": {
     "image_url": null,
     "image_checksum": null,
-    "wifi_ssid": "",
-    "wifi_password": "",
+    "wpa_supplicant_path": "",
     "ip": "",
     "subnet": "",
     "router": "",
     "ssh_public_key_path": null,
     "username": null
   },
-  "sensitive-variables": [ "wifi_password" ],
   "builders": [
     {
       "type": "arm-image",
@@ -25,9 +23,7 @@
         "USERNAME={{user `username`}}",
         "IP={{user `ip`}}",
         "SUBNET={{user `subnet`}}",
-        "ROUTER={{user `router`}}",
-        "SSID={{user `wifi_ssid`}}",
-        "WIFI_PASSWORD='{{user `wifi_password`}}'"
+        "ROUTER={{user `router`}}"
      ],
       "script": "./setup.sh"
     },
@@ -35,6 +31,11 @@
       "type": "file",
       "source": "{{user `ssh_public_key_path`}}",
       "destination": "/home/{{user `username`}}/.ssh/authorized_keys"
+    },
+    {
+        "type": "file",
+        "source": "{{user `wpa_supplicant_path`}}",
+        "destination": "/etc/wpa_supplicant/wpa_supplicant.conf"
     },
     {
         "type": "shell",

@@ -66,7 +66,7 @@ steps:
     
     sudo ./packer build -var-file=variables.json packer.json
     
-    xz -cv output-arm-image/image > image.xz
+    xz -cv0 output-arm-image/image > image.xz
   displayName: 'Build image'
 # Presumably the Packer version supported by the
 # arm builder does not support PKR_VAR_* for setting 

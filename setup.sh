@@ -23,6 +23,7 @@ apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy install vim
 rm -f /etc/motd
 
 echo "$HOSTNAME" > /etc/hostname
+sed "s/^127.0.0.1[ \t]*raspberrypi/127.0.0.1 $HOSTNAME/" /etc/hosts
 
 chown $USERNAME:$USERNAME -R /home/$USERNAME/
 

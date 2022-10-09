@@ -5,7 +5,7 @@ wpa_passphrase "$SSID" "$WIFI_PASSWORD" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/w
 touch /boot/ssh
 
 # Can we make it completely passwordless instead of a random 60 char passphrase?
-echo "$USERNAME:$(echo "Password1!" | openssl passwd -6 -stdin)" >> /boot/userconf.txt
+echo "$USERNAME:$(head -n 60 < /dev/urandom | tr -d '\n' | openssl passwd -6 -stdin)" >> /boot/userconf.txt
 
 mv /home/pi /home/uno
 

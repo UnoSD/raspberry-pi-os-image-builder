@@ -46,7 +46,7 @@ steps:
   displayName: Open brackets in Packer variables file
 - ${{ each parameter in parameters }}:
   - script: |
-      echo -n '"${{ parameter.Key }}": "${{ parameter.Value }}",' >> variables.json
+      echo -n "\"${{ parameter.Key }}\": $(echo -n '${{ parameter.Value }}' | jq -Rsa .)," >> variables.json
     displayName: Setting ${{ parameter.Key }} in Packer variables file
 - script: |
     truncate -s -1 variables.json

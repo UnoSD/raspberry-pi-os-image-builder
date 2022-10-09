@@ -35,6 +35,10 @@
       "type": "file",
       "source": "{{user `ssh_public_key_path`}}",
       "destination": "/home/{{user `username`}}/.ssh/authorized_keys"
+    },
+    {
+        "type": "shell",
+        "inline": [ "chown {{user `username`}}:{{user `username`}} /home/{{user `username`}}/.ssh/authorized_keys" ]
     }
   ]
 }

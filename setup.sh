@@ -8,8 +8,10 @@ echo "$USERNAME:$(head -n 60 < /dev/urandom | tr -d '\n' | openssl passwd -6 -st
 mv /home/pi /home/uno
 
 useradd uno
-usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi uno
+usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel uno
 deluser pi
+
+echo "%wheel         ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 mkdir /home/$USERNAME/.ssh
 

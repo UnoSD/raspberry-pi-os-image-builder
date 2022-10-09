@@ -21,7 +21,7 @@ apt-get -qq update && apt-get -qqy upgrade
 
 rm -f /etc/motd
 
-chown $USERNAME:$USERNAME -R /home/$USERNAME/
+#chown $USERNAME:$USERNAME -R /home/$USERNAME/
 
 sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 

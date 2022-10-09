@@ -38,15 +38,15 @@ parameters:
 steps:
 - task: DownloadSecureFile@1
   name: PublicKey
-  displayName: 'Download public key'
+  displayName: Download public key
   inputs:
-    secureFile: 'id_rsa.pub'
+    secureFile: id_rsa.pub
 
 - task: DownloadSecureFile@1
   name: WpaSupplicant
-  displayName: 'Download wpa_supplicant.conf'
+  displayName: Download wpa_supplicant.conf
   inputs:
-    secureFile: 'wpa_supplicant.conf'
+    secureFile: wpa_supplicant.conf
 
 - script: echo -n "{" > variables.json
   displayName: Open brackets in Packer variables file
@@ -76,7 +76,7 @@ steps:
     
     # Zip seems to be faster with roughly the same size
     #xz -cv0 output-arm-image/image > image.xz
-  displayName: 'Build image'
+  displayName: Build image
 # Presumably the Packer version supported by the
 # arm builder does not support PKR_VAR_* for setting 
 # variables; add this back when we can upgrade Packer.
@@ -86,5 +86,5 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)/image.zip'
-    publishLocation: 'pipeline'
+    targetPath: $(System.DefaultWorkingDirectory)/image.zip
+    publishLocation: pipeline

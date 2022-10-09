@@ -4,9 +4,9 @@
     "image_checksum": null,
     "wifi_ssid": "",
     "wifi_password": "",
-    "ip": null,
-    "subnet": null,
-    "router": null,
+    "ip": "",
+    "subnet": "",
+    "router": "",
     "ssh_public_key_path": null,
     "username": null
   },

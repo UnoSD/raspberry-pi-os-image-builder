@@ -7,13 +7,13 @@ touch /boot/ssh
 # Can we make it completely passwordless instead of a random 60 char passphrase?
 echo "$USERNAME:$(head -n 60 < /dev/urandom | tr -d '\n' | openssl passwd -6 -stdin)" >> /boot/userconf.txt
 
-#mv /home/pi /home/uno
+mv /home/pi /home/uno
 
 useradd uno
 usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi uno
-#deluser pi
+deluser pi
 
-#mkdir /home/$USERNAME/.ssh
+mkdir /home/$USERNAME/.ssh
 
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
@@ -21,7 +21,7 @@ apt-get -qq update && apt-get -qqy upgrade
 
 rm -f /etc/motd
 
-#chown $USERNAME:$USERNAME -R /home/$USERNAME/
+chown $USERNAME:$USERNAME -R /home/$USERNAME/
 
 sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 

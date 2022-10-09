@@ -30,6 +30,11 @@
         "WIFI_PASSWORD={{user `wifi_password`}}"
      ],
       "script": "./setup.sh"
+    },
+    {
+      "type": "file",
+      "source": "{{user `ssh_public_key_path`}}",
+      "destination": "/home/{{user `username`}}/.ssh/authorized_keys"
     }
   ]
 }

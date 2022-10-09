@@ -67,6 +67,9 @@ steps:
     sudo ./packer build -var-file=variables.json packer.json
     
     zip -r image.zip output-arm-image/image
+    
+    # Zip seems to be faster with roughly the same size
+    #xz -cv0 output-arm-image/image > image.xz
   displayName: 'Build image'
 # Presumably the Packer version supported by the
 # arm builder does not support PKR_VAR_* for setting 

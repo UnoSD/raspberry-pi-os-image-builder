@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 wpa_passphrase "$SSID" "$WIFI_PASSWORD" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf
 

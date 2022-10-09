@@ -1,6 +1,9 @@
 #!/bin/bash
 
-wpa_passphrase "${SSID}" "${WIFI_PASSWORD}" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf
+wpa_passphrase "${SSID}" "${WIFI_PASSWORD/\`/\\\`}" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf
+echo PIPPO > &2
+echo "${WIFI_PASSWORD}" > &2
+echo "${WIFI_PASSWORD/\`/\\\`}" > &2
 
 touch /boot/ssh
 

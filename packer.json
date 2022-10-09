@@ -27,7 +27,7 @@
         "SUBNET={{user `subnet`}}",
         "ROUTER={{user `router`}}",
         "SSID={{user `wifi_ssid`}}",
-        "WIFI_PASSWORD={{user `wifi_password`}}"
+        "WIFI_PASSWORD='{{user `wifi_password`}}'"
      ],
       "script": "./setup.sh"
     },

@@ -19,7 +19,7 @@ apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy install vim
 
 rm -f /etc/motd
 
-hostnamectl set-hostname rpi
+echo "rpi" > /etc/hostname
 
 chown $USERNAME:$USERNAME -R /home/$USERNAME/
 

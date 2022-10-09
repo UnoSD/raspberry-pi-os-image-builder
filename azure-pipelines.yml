@@ -30,6 +30,8 @@ parameters:
   default: $(router)
 - name: ssh_public_key_path
   default: $(PublicKey.secureFilePath)
+- name: hostname
+  default: $(hostname)
 - name: image_url
   default: https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-09-26/2022-09-22-raspios-bullseye-armhf-lite.img.xz
 - name: image_checksum

@@ -22,7 +22,7 @@ apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy install vim
 
 rm -f /etc/motd
 
-echo "rpi" > /etc/hostname
+echo "$HOSTNAME" > /etc/hostname
 
 chown $USERNAME:$USERNAME -R /home/$USERNAME/
 

@@ -17,9 +17,11 @@ mkdir /home/$USERNAME/.ssh
 
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-apt-get -qq update && apt-get -qqy upgrade
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy install vim
 
 rm -f /etc/motd
+
+hostnamectl set-hostname rpi
 
 chown $USERNAME:$USERNAME -R /home/$USERNAME/
 
@@ -29,7 +31,7 @@ systemctl -q enable ssh
 
 if [[ -n ${IP} && -n ${SUBNET} && -n ${ROUTER} ]]; then
 
-    cat > /etc/dhcpd.conf <<EOF
+    cat > /etc/dhcpcd.conf <<EOF
 interface eth0
 static ip_address=$IP/$SUBNET
 static routers=$ROUTER

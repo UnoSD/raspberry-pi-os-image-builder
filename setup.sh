@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# ADD PAGUP TO RECALL COMMAND
+# bash completion
+#time zone
+#vim no mouse mode
+#Try cockpit and Log Analytics
+# install ufw
+# optional mfa:
+#libmicrohttpd12
+#libpam-google-authenticator
+#motion
+#samba samba-common-bin
+#ufw
+
+# sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
+# echo -e "WORKSPACE_ID={LA WID}" > /etc/azurelaconfig
+# echo -e "WORKSPACE_KEY={LA KEY}" >> /etc/azurelaconfig
+
 touch /boot/ssh
 
 # Can we make it completely passwordless instead of a random 60 char passphrase?

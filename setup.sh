@@ -35,7 +35,7 @@ mkdir /home/$USERNAME/.ssh
 
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy install vim
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy install vim jc
 
 rm -f /etc/motd
 

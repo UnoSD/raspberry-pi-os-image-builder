@@ -83,34 +83,18 @@ steps:
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
     
-    wget -q https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip
+    wget -qO- https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip | bsdtar -xf-
+    
+    wget -qO- https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip | bsdtar -xf-
 
-    unzip -qq packer_$(packer_version)_linux_amd64.zip
-    
-    wget -q https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip
-
-    unzip -qq packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip
-
-    rm packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip
-    
-    chmod +x packer-plugin-arm-image_v0.2.6_*
-    
-    sudo ./packer build -var-file=variables.json image.pkr.hcl
-    
-    zip -r image.zip output-arm-image/image
-    
-    # Zip seems to be faster with roughly the same size
-    #xz -cv0 output-arm-image/image > image.xz
+    sudo ./packer build image.pkr.hcl
   displayName: Build image
   failOnStderr: true
-# Presumably the Packer version supported by the
-# arm builder does not support PKR_VAR_* for setting 
-# variables; add this back when we can upgrade Packer.
-#  env:
-#    ${{ each parameter in parameters }}:
-#      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
+  env:
+    ${{ each parameter in parameters }}:
+      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: $(System.DefaultWorkingDirectory)/image.zip
+    targetPath: $(System.DefaultWorkingDirectory)/output-arm-image/image
     publishLocation: pipeline

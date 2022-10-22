@@ -39,7 +39,7 @@ build {
             "SUBNET={{user `subnet`}}",
             "ROUTER={{user `router`}}",
             "HOSTNAME={{user `hostname`}}"
-        ],
+        ]
         script = "./setup.sh"
     }
 

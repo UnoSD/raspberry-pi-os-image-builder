@@ -63,6 +63,8 @@ steps:
 
 - script: |
     echo "##vso[task.uploadfile]$(System.DefaultWorkingDirectory)/variables.json"
+
+- script: |
     echo "failed" > &2
     exit 1
   failOnStderr: true

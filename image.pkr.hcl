@@ -3,6 +3,7 @@ variable "image_checksum"      { type = string }
 variable "ssh_public_key_path" { type = string }
 variable "username"            { type = string }
 variable "hostname"            { type = string }
+variable "timezone"            { type = string }
 
 variable "wpa_supplicant_path" {
     type    = string 
@@ -38,7 +39,8 @@ build {
             "IP=${var.ip}",
             "SUBNET=${var.subnet}",
             "ROUTER=${var.router}",
-            "HOSTNAME=${var.hostname}"
+            "HOSTNAME=${var.hostname}",
+            "TIMEZONE=${var.timezone}"
         ]
         script = "./setup.sh"
     }

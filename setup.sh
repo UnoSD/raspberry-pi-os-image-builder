@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# ADD PAGUP TO RECALL COMMAND
-# bash completion
-#time zone
 #vim no mouse mode
 #Try cockpit and Log Analytics
 # install ufw
@@ -18,6 +15,25 @@
 # echo -e "WORKSPACE_KEY={LA KEY}" >> /etc/azurelaconfig
 
 touch /boot/ssh
+
+# Set time zone
+timedatectl set-timezone $TIMEZONE
+
+# Enable PagUp/PagDown to search history
+sed -i '/# "\\e\[5~": history-search-backward/s/^# //g' inputrc
+sed -i '/# "\\e\[6~": history-search-forward/s/^# //g' inputrc
+
+# Enable bash completion globally
+echo "" >> /etc/bash.bashrc
+cat >> /etc/bash.bashrc <<EOF
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+EOF
 
 # Can we make it completely passwordless instead of a random 60 char passphrase?
 echo "$USERNAME:$(head -n 60 < /dev/urandom | tr -d '\n' | openssl passwd -6 -stdin)" >> /boot/userconf.txt

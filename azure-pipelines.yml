@@ -26,6 +26,8 @@ parameters:
   default: $(PublicKey.secureFilePath)
 - name: hostname
   default: $(hostname)
+- name: timezone
+  default: $(timezone)
 - name: image_url
   default:
 - name: image_checksum

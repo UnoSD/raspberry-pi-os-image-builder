@@ -1,20 +1,23 @@
 #!/bin/bash
 
-#vim no mouse mode
-#Try cockpit and Log Analytics
-# install ufw
-# optional mfa:
-#libmicrohttpd12
-#libpam-google-authenticator
-#motion
-#samba samba-common-bin
-#ufw
+#TODO:
+# ufw
+# mfa: #libmicrohttpd12 #libpam-google-authenticator
+# motion
+# samba samba-common-bin
 
 # sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
 # echo -e "WORKSPACE_ID={LA WID}" > /etc/azurelaconfig
 # echo -e "WORKSPACE_KEY={LA KEY}" >> /etc/azurelaconfig
 
 touch /boot/ssh
+
+# Disable mouse mode in Vim
+echo "" >> /etc/vimrc
+cat >> /etc/vimrc << EOF
+set mouse=
+set ttymouse=
+EOF
 
 # Set time zone
 timedatectl set-timezone $TIMEZONE
@@ -51,7 +54,7 @@ mkdir /home/$USERNAME/.ssh
 
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy install vim jc
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp
 
 rm -f /etc/motd
 

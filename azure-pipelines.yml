@@ -83,9 +83,13 @@ steps:
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static kpartx qemu binfmt-support e2fsprogs dosfstools libarchive-tools
     
+    echo https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip
     wget -qO- https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip | bsdtar xf -
     
+    echo https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip
     wget -qO- https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip | bsdtar xf -
+
+    ls
 
     sudo ./packer build image.pkr.hcl
   displayName: Build image

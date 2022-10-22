@@ -59,11 +59,12 @@ steps:
     if [ -z "$(jq .image_url variables.json -r)" ]; then
         IMAGE=$(curl -s 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
         IMAGE_NAME=$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
-        IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/$IMAGE_NAME"
+        IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/${IMAGE}${IMAGE_NAME}"
         IMAGE_SHA256="sha256:$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
     
         jq ".image_url = \"$IMAGE_URL\" | .image_checksum = \"$IMAGE_SHA256\"" variables.json > temp.json && mv temp.json variables.json
     fi
+    
     cat variables.json
   displayName: Set lastest image
 

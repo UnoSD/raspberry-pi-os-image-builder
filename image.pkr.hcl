@@ -5,22 +5,16 @@ variable "username"            { type = string }
 variable "hostname"            { type = string }
 variable "timezone"            { type = string }
 
+variable "network" {
+    type    = object({
+        ip      = string
+        subnet  = string
+        gateway = string
+    })
+    default = null
+}
+
 variable "wpa_supplicant_path" {
-    type    = string 
-    default = ""
-}
-
-variable "ip" {
-    type    = string 
-    default = ""
-}
-
-variable "subnet" {
-    type    = string 
-    default = ""
-}
-
-variable "router" {
     type    = string 
     default = ""
 }
@@ -36,9 +30,9 @@ build {
     provisioner "shell" {
         environment_vars = [ 
             "USERNAME=${var.username}",
-            "IP=${var.ip}",
-            "SUBNET=${var.subnet}",
-            "ROUTER=${var.router}",
+            "IP=${var.network.ip}",
+            "SUBNET=${var.network.subnet}",
+            "GATEWAY=${var.network.gateway}",
             "HOSTNAME=${var.hostname}",
             "TIMEZONE=${var.timezone}"
         ]

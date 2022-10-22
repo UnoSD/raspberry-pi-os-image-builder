@@ -64,17 +64,18 @@ sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 
 systemctl -q enable ssh
 
-if [[ -n ${IP} && -n ${SUBNET} && -n ${ROUTER} ]]; then
+# Set up static network addresses if supplied
+if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then
 
     cat > /etc/dhcpcd.conf <<EOF
 interface eth0
 static ip_address=$IP/$SUBNET
-static routers=$ROUTER
+static routers=$GATEWAY
 static domain_name_servers=1.1.1.1 1.0.0.1
 
 interface wlan0
 static ip_address=$IP/$SUBNET
-static routers=$ROUTER
+static routers=$GATEWAY
 static domain_name_servers=1.1.1.1 1.0.0.1
 EOF
 

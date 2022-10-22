@@ -95,7 +95,7 @@ steps:
     
     chmod +x packer-plugin-arm-image_v0.2.6_*
     
-    sudo ./packer build -var-file=variables.json packer.json
+    sudo ./packer build -var-file=variables.json image.pkr.hcl
     
     zip -r image.zip output-arm-image/image
     

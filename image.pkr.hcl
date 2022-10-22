@@ -34,11 +34,11 @@ build {
 
     provisioner "shell" {
         environment_vars = [ 
-            "USERNAME={{user `username`}}",
-            "IP={{user `ip`}}",
-            "SUBNET={{user `subnet`}}",
-            "ROUTER={{user `router`}}",
-            "HOSTNAME={{user `hostname`}}"
+            "USERNAME=${var.username}",
+            "IP=${var.ip}",
+            "SUBNET=${var.subnet}",
+            "ROUTER=${var.router}",
+            "HOSTNAME=${var.hostname}"
         ]
         script = "./setup.sh"
     }

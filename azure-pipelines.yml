@@ -56,7 +56,7 @@ steps:
   displayName: Close brackets in Packer variables file
 
 - script: |
-    if [ -z "$(jq .image_url test.json -r)" ]; then
+    if [ -z "$(jq .image_url variables.json -r)" ]; then
         IMAGE=$(curl 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
         IMAGE_NAME=$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
         IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/$IMAGE_NAME"

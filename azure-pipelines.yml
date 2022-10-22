@@ -1,7 +1,3 @@
-# TODO:
-# Fail pipeline on packer failure
-# Find latest and pass as argument from https://downloads.raspberrypi.org/raspios_lite_armhf/images/ for image_url/checksum
-
 trigger:
 - main
 
@@ -16,8 +12,6 @@ variables:
   value: 0.1.6
 
 parameters:
-- name: wifi_ssid
-  default: $(wifi_ssid)
 - name: wpa_supplicant_path
   default: $(WpaSupplicant.secureFilePath)
 - name: username
@@ -33,9 +27,9 @@ parameters:
 - name: hostname
   default: $(hostname)
 - name: image_url
-  default: https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-09-26/2022-09-22-raspios-bullseye-armhf-lite.img.xz
+  default:
 - name: image_checksum
-  default: sha256:9bf5234efbadd2d39769486e0a20923d8526a45eba57f74cda45ef78e2b628da
+  default:
         
 steps:
 - task: DownloadSecureFile@1
@@ -62,10 +56,15 @@ steps:
   displayName: Close brackets in Packer variables file
 
 - script: |
-    cat "$(System.DefaultWorkingDirectory)/variables.json"
-    echo "failed" > &2
-    exit 1
-  failOnStderr: true
+    if [ -z "$(jq .image_url test.json -r)" ]; then
+        IMAGE=$(curl 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
+        IMAGE_NAME=$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
+        IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/$IMAGE_NAME"
+        IMAGE_SHA256="sha256:$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
+    
+        jq ".image_url = \"$IMAGE_URL\" | .image_checksum = \"$IMAGE_SHA256\"" variables.json > temp.json && mv temp.json variables.json
+    fi
+  displayName: Set lastest image
 
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
@@ -78,11 +77,6 @@ steps:
 
     chmod +x packer-builder-arm-image
     
-    #IMAGE=$(curl 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
-    #IMAGE_NAME=$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
-    #IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/$IMAGE_NAME"
-    #IMAGE_SHA256="sha256:$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
-    
     sudo ./packer build -var-file=variables.json packer.json
     
     zip -r image.zip output-arm-image/image
@@ -90,6 +84,7 @@ steps:
     # Zip seems to be faster with roughly the same size
     #xz -cv0 output-arm-image/image > image.xz
   displayName: Build image
+  failOnStdErr: true
 # Presumably the Packer version supported by the
 # arm builder does not support PKR_VAR_* for setting 
 # variables; add this back when we can upgrade Packer.

@@ -91,6 +91,8 @@ steps:
 
     unzip -qq packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip
 
+    rm packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip
+    
     chmod +x packer-plugin-arm-image_v0.2.6_*
     
     sudo ./packer build -var-file=variables.json packer.json

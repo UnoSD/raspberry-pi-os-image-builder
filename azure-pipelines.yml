@@ -84,7 +84,7 @@ steps:
     # Zip seems to be faster with roughly the same size
     #xz -cv0 output-arm-image/image > image.xz
   displayName: Build image
-  failOnStdErr: true
+  failOnStderr: true
 # Presumably the Packer version supported by the
 # arm builder does not support PKR_VAR_* for setting 
 # variables; add this back when we can upgrade Packer.

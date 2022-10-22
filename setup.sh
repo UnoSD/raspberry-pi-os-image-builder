@@ -6,10 +6,6 @@
 # motion
 # samba samba-common-bin
 
-# sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
-# echo -e "WORKSPACE_ID={LA WID}" > /etc/azurelaconfig
-# echo -e "WORKSPACE_KEY={LA KEY}" >> /etc/azurelaconfig
-
 touch /boot/ssh
 
 # Disable mouse mode in Vim
@@ -55,6 +51,11 @@ mkdir /home/$USERNAME/.ssh
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp
+
+# Fluent-bit
+# sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
+# echo -e "WORKSPACE_ID={LA WID}" > /etc/azurelaconfig
+# echo -e "WORKSPACE_KEY={LA KEY}" >> /etc/azurelaconfig
 
 rm -f /etc/motd
 

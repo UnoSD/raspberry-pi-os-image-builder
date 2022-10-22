@@ -49,8 +49,6 @@ steps:
     displayName: Setting ${{ parameter.Key }} in Packer variables file
 
 - script: |
-    cat variables.auto.pkrvars.hcl
-    
     if [ -z "$(grep image_url variables.auto.pkrvars.hcl | cut -d'"' -f2)" ]; then
         IMAGE=$(curl -s 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
         IMAGE_NAME=$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
@@ -82,6 +80,8 @@ steps:
     wget -qO- https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip | bsdtar xf -
     
     wget -qO- https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip | bsdtar xf -
+
+    chmod +x packer*
 
     sudo ./packer build image.pkr.hcl
   displayName: Build image

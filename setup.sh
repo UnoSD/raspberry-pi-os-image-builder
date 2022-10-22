@@ -54,8 +54,10 @@ mkdir /home/$USERNAME/.ssh
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 # Add Fluent Bit repository
-wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
-echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
+#wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
+wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/share/keyrings/fluentbit.key
+#echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
+echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
 apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit network-manager-openvpn
 
@@ -107,6 +109,7 @@ systemctl -q enable ssh
 systemctl -q enable fluent-bit
 systemctl -q enable stubby
 systemctl -q enable dnsmasq
+systemctl -q enable NetworkManager
 
 # Set up static network addresses if supplied
 if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then

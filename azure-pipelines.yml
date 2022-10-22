@@ -47,22 +47,21 @@ steps:
 - script: echo -n "{" > variables.json
   displayName: Open brackets in Packer variables file
 - ${{ each parameter in parameters }}:
-  - script: |
-      echo -n "\"${{ parameter.Key }}\": $(echo -n '${{ parameter.Value }}' | jq -Rsa .)," >> variables.json
+  - script: echo "${{ parameter.Key }} = \"${{ parameter.Value }}\"" >> variables.auto.pkrvars.hcl
     displayName: Setting ${{ parameter.Key }} in Packer variables file
-- script: |
-    truncate -s -1 variables.json
-    echo "}" >> variables.json
   displayName: Close brackets in Packer variables file
 
 - script: |
-    if [ -z "$(jq .image_url variables.json -r)" ]; then
+    cat variables.auto.pkrvars.hcl
+    
+    if [ -z "$(grep image_url variables.auto.pkrvars.hcl | cut -d'"' -f2)" ]; then
         IMAGE=$(curl -s 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
         IMAGE_NAME=$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
         IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/${IMAGE}${IMAGE_NAME}"
         IMAGE_SHA256="sha256:$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
     
-        jq ".image_url = \"$IMAGE_URL\" | .image_checksum = \"$IMAGE_SHA256\"" variables.json > temp.json && mv temp.json variables.json
+        sed -i "s/image_url = \"\"/image_url = \"$IMAGE_URL\"/" variables.auto.pkrvars.hcl
+        sed -i "s/image_checksum = \"\"/image_checksum = \"$IMAGE_SHA256\"/" variables.auto.pkrvars.hcl
     fi
     
     if [ -z "${{ variables.packer_version }}" ]; then
@@ -74,7 +73,7 @@ steps:
         echo "##vso[task.setvariable variable=packer_arm_builder_version]${GITHUB_TAG:1}"
     fi
     
-    cat variables.json
+    cat variables.auto.pkrvars.hcl
     
     echo "Packer version: $[packer_version]"
     echo "Packer ARM image builder version: $[packer_arm_builder_version]"
@@ -87,20 +86,13 @@ steps:
     
     wget -qO- https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip | bsdtar xf -
 
-    chmod +x packer*
-
-    env
-    
-    echo "################################"
-    
-    export -p
-
     sudo ./packer build image.pkr.hcl
   displayName: Build image
   failOnStderr: true
-  env:
-    ${{ each parameter in parameters }}:
-      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
+# Not working, open an issue on Packer
+#  env:
+#    ${{ each parameter in parameters }}:
+#      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
 
 - task: PublishPipelineArtifact@1
   inputs:

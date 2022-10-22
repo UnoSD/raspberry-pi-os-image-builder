@@ -4,6 +4,8 @@ variable "ssh_public_key_path" { type = string }
 variable "username"            { type = string }
 variable "hostname"            { type = string }
 variable "timezone"            { type = string }
+variable "workspace_id"        { type = string }
+variable "workspace_key"       { type = string, sensitive = true }
 
 variable "network" {
     type    = object({
@@ -34,6 +36,8 @@ build {
             "SUBNET=${var.network.subnet}",
             "GATEWAY=${var.network.gateway}",
             "HOSTNAME=${var.hostname}",
+            "WORKSPACE_ID=${var.hostname}",
+            "WORKSPACE_KEY=${var.hostname}",
             "TIMEZONE=${var.timezone}"
         ]
         script = "./setup.sh"
@@ -47,6 +51,11 @@ build {
     provisioner "file" {
         source      = "${var.wpa_supplicant_path}"
         destination = "/etc/wpa_supplicant/wpa_supplicant.conf"
+    }
+    
+    provisioner "file" {
+        source      = "fluent-bit.conf"
+        destination = "/etc/fluent-bit/fluent-bit.conf"
     }
     
     provisioner "shell" {

@@ -50,12 +50,16 @@ mkdir /home/$USERNAME/.ssh
 
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp
+# Add Fluent Bit repository
+wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
+echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
-# Fluent-bit
-# sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
-# echo -e "WORKSPACE_ID={LA WID}" > /etc/azurelaconfig
-# echo -e "WORKSPACE_KEY={LA KEY}" >> /etc/azurelaconfig
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit
+
+# Fluent-bit configuration
+sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
+echo -e "WORKSPACE_ID=$WORKSPACE_ID" > /etc/azurelaconfig
+echo -e "WORKSPACE_KEY=$WORKSPACE_KEY" >> /etc/azurelaconfig
 
 rm -f /etc/motd
 
@@ -67,6 +71,9 @@ chown $USERNAME:$USERNAME -R /home/$USERNAME/
 sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 
 systemctl -q enable ssh
+systemctl -q enable fluent-bit
+systemctl -q enable stubby
+systemctl -q enable dnsmasq
 
 # Set up static network addresses if supplied
 if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then

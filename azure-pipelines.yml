@@ -70,8 +70,8 @@ steps:
     
     cat variables.auto.pkrvars.hcl
     
-    echo "Packer version: $[packer_version]"
-    echo "Packer ARM image builder version: $[packer_arm_builder_version]"
+    echo "Packer version: $[variables.packer_version]"
+    echo "Packer ARM image builder version: $[variables.packer_arm_builder_version]"
   displayName: Set lastest versions
 
 - script: |
@@ -90,6 +90,8 @@ steps:
 #  env:
 #    ${{ each parameter in parameters }}:
 #      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
+#    #PKR_VAR_image_url: $(SET VARIABLE IN Set lastest versions TASK)
+#    #PKR_VAR_image_checksum: $(SET VARIABLE IN Set lastest versions TASK)
 
 - task: PublishPipelineArtifact@1
   inputs:

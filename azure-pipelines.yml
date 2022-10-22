@@ -57,8 +57,8 @@ steps:
         IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/${IMAGE}${IMAGE_NAME}"
         IMAGE_SHA256="sha256:$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
     
-        sed -i "s/image_url = \"\"/image_url = \"$IMAGE_URL\"/" variables.auto.pkrvars.hcl
-        sed -i "s/image_checksum = \"\"/image_checksum = \"$IMAGE_SHA256\"/" variables.auto.pkrvars.hcl
+        sed -i "s#image_url = \"\"#image_url = \"$IMAGE_URL\"#" variables.auto.pkrvars.hcl
+        sed -i "s#image_checksum = \"\"#image_checksum = \"$IMAGE_SHA256\"#" variables.auto.pkrvars.hcl
     fi
     
     if [ -z "${{ variables.packer_version }}" ]; then

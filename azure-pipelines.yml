@@ -62,9 +62,7 @@ steps:
   displayName: Close brackets in Packer variables file
 
 - script: |
-    echo "##vso[task.uploadfile]$(System.DefaultWorkingDirectory)/variables.json"
-
-- script: |
+    cat "$(System.DefaultWorkingDirectory)/variables.json"
     echo "failed" > &2
     exit 1
   failOnStderr: true

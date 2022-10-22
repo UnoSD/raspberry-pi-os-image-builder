@@ -89,6 +89,12 @@ steps:
 
     chmod +x packer*
 
+    env
+    
+    echo "################################"
+    
+    export -p
+
     sudo ./packer build image.pkr.hcl
   displayName: Build image
   failOnStderr: true

@@ -36,7 +36,7 @@ build {
 
     provisioner "file" {
         source      = "${var.openvpn_file_path}"
-        destination = "/etc/openvpn/client/azure.conf"
+        destination = "/tmp/azure.conf"
     }
 
     provisioner "shell" {

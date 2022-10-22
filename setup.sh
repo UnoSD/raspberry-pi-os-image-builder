@@ -12,8 +12,8 @@
 touch /boot/ssh
 
 # Disable mouse mode in Vim
-echo "" >> /etc/vimrc
-cat >> /etc/vimrc << EOF
+echo "" >> /etc/vim/vimrc
+cat >> /etc/vim/vimrc << EOF
 set mouse=
 set ttymouse=
 EOF
@@ -37,30 +37,33 @@ if ! shopt -oq posix; then
 fi
 EOF
 
+# Set user passphrase
 # Can we make it completely passwordless instead of a random 60 char passphrase?
 echo "$USERNAME:$(head -n 60 < /dev/urandom | tr -d '\n' | openssl passwd -6 -stdin)" >> /boot/userconf.txt
 
-mv /home/pi /home/uno
-
-useradd uno
+# Remove default user and add custom
+mv /home/pi /home/$USERNAME
+useradd $USERNAME
 groupadd wheel
-usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel uno
+usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel $USERNAME
 deluser pi
 groupdel pi
 
+# Add wheel group to no password sudo
 echo "%wheel         ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+# Set up ssh and disable password
 mkdir /home/$USERNAME/.ssh
-
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 # Add Fluent Bit repository
 wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/share/keyrings/fluentbit.key
 echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn unattended-upgrades
+# Install software
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn unattended-upgrades dnsutils
 
-# OpenVPN
+# Set up OpenVPN
 mv /tmp/azure.conf /etc/openvpn/client/
 systemctl -q enable openvpn-client@azure.service
 
@@ -123,6 +126,7 @@ EOF
 #fi
 
 rm -f /etc/motd
+rm -f /etc/motd.d/*
 
 echo "$HOSTNAME" > /etc/hostname
 sed -i "s/^127.0.0.1[ \t]*raspberrypi/127.0.0.1 $HOSTNAME/" /etc/hosts

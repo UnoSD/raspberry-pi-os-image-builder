@@ -45,6 +45,7 @@ mv /home/pi /home/uno
 useradd uno
 groupadd wheel
 usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel uno
+groupdel pi
 deluser pi
 
 echo "%wheel         ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -99,7 +100,7 @@ echo -e "WORKSPACE_KEY=$WORKSPACE_KEY" >> /etc/azurelaconfig
 rm -f /etc/motd
 
 echo "$HOSTNAME" > /etc/hostname
-sed "s/^127.0.0.1[ \t]*raspberrypi/127.0.0.1 $HOSTNAME/" /etc/hosts
+sed -i "s/^127.0.0.1[ \t]*raspberrypi/127.0.0.1 $HOSTNAME/" /etc/hosts
 
 chown $USERNAME:$USERNAME -R /home/$USERNAME/
 

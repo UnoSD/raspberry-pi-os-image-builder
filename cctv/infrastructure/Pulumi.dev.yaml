@@ -1,0 +1,4 @@
+config:
+  UnoCCTV:username: uno
+  UnoCCTV:workloadOrApplication: cctv
+  azure-native:location: Switzerland North

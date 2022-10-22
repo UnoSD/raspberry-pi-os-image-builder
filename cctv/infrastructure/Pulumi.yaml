@@ -1,0 +1,4 @@
+name: UnoCCTV
+runtime: dotnet
+backend:
+  url: file://~/.pulumi/project-stacks/UnoCCTV

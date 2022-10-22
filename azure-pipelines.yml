@@ -43,7 +43,7 @@ steps:
     secureFile: wpa_supplicant.conf
 
 - ${{ each parameter in parameters }}:
-  - script: echo "${{ parameter.Key }} = $(echo '${{ parameter.Value }}' | jq -Rsa .)" >> variables.auto.pkrvars.hcl
+  - script: echo "${{ parameter.Key }} = $(echo -n '${{ parameter.Value }}' | jq -Rsa .)" >> variables.auto.pkrvars.hcl
     displayName: Setting ${{ parameter.Key }} in Packer variables file
 
 - script: |
@@ -67,9 +67,6 @@ steps:
     fi
     
     cat variables.auto.pkrvars.hcl
-    
-    echo "Packer version: $[variables.packer_version]"
-    echo "Packer ARM image builder version: $[variables.packer_arm_builder_version]"
   displayName: Set lastest versions
 
 - script: |

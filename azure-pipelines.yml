@@ -44,13 +44,9 @@ steps:
   inputs:
     secureFile: wpa_supplicant.conf
 
-- script: echo -n "{" > variables.json
-  displayName: Open brackets in Packer variables file
 - ${{ each parameter in parameters }}:
-  - script: |
-      echo "${{ parameter.Key }} = \"${{ parameter.Value }}\"" >> variables.auto.pkrvars.hcl
+  - script: echo "${{ parameter.Key }} = \"${{ parameter.Value }}\"" >> variables.auto.pkrvars.hcl
     displayName: Setting ${{ parameter.Key }} in Packer variables file
-  displayName: Close brackets in Packer variables file
 
 - script: |
     cat variables.auto.pkrvars.hcl

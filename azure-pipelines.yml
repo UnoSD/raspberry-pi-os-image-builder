@@ -83,7 +83,7 @@ steps:
 
     chmod +x packer*
 
-    sudo ./packer build image.pkr.hcl
+    sudo ./packer build image.pkr.hcl -var-file=variables.auto.pkrvars.hcl
   displayName: Build image
   failOnStderr: true
 # Not working, open an issue on Packer

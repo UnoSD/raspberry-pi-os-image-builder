@@ -60,13 +60,14 @@ wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/sh
 #echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit network-manager-openvpn
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn #network-manager-openvpn
 
 # OpenVPN
-nmcli connection import type openvpn file /azure.ovpn
-nmcli connection modify AzureVPN ipv4.never-default true
-nmcli connection up AzureVPN
-rm /azure.ovpn
+systemctl -q enable openvpn-client@azure.service
+#nmcli connection import type openvpn file /azure.ovpn
+#nmcli connection modify AzureVPN ipv4.never-default true
+#nmcli connection up AzureVPN
+#rm /azure.ovpn
 
 # Fluent-bit configuration
 sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
@@ -110,7 +111,7 @@ systemctl -q enable ssh
 systemctl -q enable fluent-bit
 systemctl -q enable stubby
 systemctl -q enable dnsmasq
-systemctl -q enable NetworkManager
+#systemctl -q enable NetworkManager
 
 # Set up static network addresses if supplied
 if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then

@@ -36,7 +36,7 @@ build {
 
     provisioner "file" {
         source      = "${var.openvpn_file_path}"
-        destination = "/azure.ovpn"
+        destination = "/etc/openvpn/client/azure.conf"
     }
 
     provisioner "shell" {
@@ -46,8 +46,8 @@ build {
             "SUBNET=${var.network.subnet}",
             "GATEWAY=${var.network.gateway}",
             "HOSTNAME=${var.hostname}",
-            "WORKSPACE_ID=${var.hostname}",
-            "WORKSPACE_KEY=${var.hostname}",
+            "WORKSPACE_ID=${var.workspace_id}",
+            "WORKSPACE_KEY=${var.workspace_key}",
             "TIMEZONE=${var.timezone}"
         ]
         script = "./setup.sh"

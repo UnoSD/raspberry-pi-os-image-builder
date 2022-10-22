@@ -16,11 +16,11 @@ set ttymouse=
 EOF
 
 # Set time zone
-timedatectl set-timezone $TIMEZONE
+ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 
 # Enable PagUp/PagDown to search history
-sed -i '/# "\\e\[5~": history-search-backward/s/^# //g' inputrc
-sed -i '/# "\\e\[6~": history-search-forward/s/^# //g' inputrc
+sed -i '/# "\\e\[5~": history-search-backward/s/^# //g' /etc/inputrc
+sed -i '/# "\\e\[6~": history-search-forward/s/^# //g' /etc/inputrc
 
 # Enable bash completion globally
 echo "" >> /etc/bash.bashrc

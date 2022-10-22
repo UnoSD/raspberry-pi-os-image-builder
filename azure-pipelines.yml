@@ -14,6 +14,8 @@ variables:
 parameters:
 - name: wpa_supplicant_path
   default: $(WpaSupplicant.secureFilePath)
+- name: openvpn_file_path
+  default: $(OpenVPN.secureFilePath)
 - name: username
   default: $(username)
 - name: network
@@ -45,6 +47,12 @@ steps:
   displayName: Download wpa_supplicant.conf
   inputs:
     secureFile: wpa_supplicant.conf
+
+- task: DownloadSecureFile@1
+  name: OpenVPN
+  displayName: Download azure.ovpn
+  inputs:
+    secureFile: azure.ovpn
 
 - ${{ each parameter in parameters }}:
   - script: |

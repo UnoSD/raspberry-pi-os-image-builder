@@ -60,11 +60,10 @@ echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc
 apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit network-manager-openvpn
 
 # OpenVPN
-# Use provisioner to copy AzureVPN.ovpn file (securefile in ADO)
-#nmcli connection import type openvpn file AzureVPN.ovpn
-#nmcli connection modify AzureVPN ipv4.never-default true
-#nmcli connection up AzureVPN
-#rm AzureVPN.ovpn
+nmcli connection import type openvpn file /azure.ovpn
+nmcli connection modify AzureVPN ipv4.never-default true
+nmcli connection up AzureVPN
+rm /azure.ovpn
 
 # Fluent-bit configuration
 sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service

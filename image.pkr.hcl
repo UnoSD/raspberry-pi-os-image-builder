@@ -1,11 +1,16 @@
 variable "image_url"           { type = string }
 variable "image_checksum"      { type = string }
 variable "ssh_public_key_path" { type = string }
+variable "openvpn_file_path"   { type = string }
 variable "username"            { type = string }
 variable "hostname"            { type = string }
 variable "timezone"            { type = string }
 variable "workspace_id"        { type = string }
-variable "workspace_key"       { type = string, sensitive = true }
+
+variable "workspace_key" {
+    type = string
+    sensitive = true
+}
 
 variable "network" {
     type    = object({
@@ -28,6 +33,11 @@ source "arm-image" "raspbian" {
 
 build {
     sources = [ "source.arm-image.raspbian" ]
+
+    provisioner "file" {
+        source      = "${var.openvpn_file_path}"
+        destination = "/azure.ovpn"
+    }
 
     provisioner "shell" {
         environment_vars = [ 

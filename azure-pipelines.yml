@@ -81,7 +81,7 @@ steps:
   displayName: Set lastest versions
 
 - script: |
-    sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
+    sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static kpartx qemu binfmt-support e2fsprogs dosfstools bsdtar
     
     wget -qO- https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip | bsdtar -xf-
     

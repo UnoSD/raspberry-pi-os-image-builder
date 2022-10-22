@@ -7,9 +7,9 @@ pool:
 variables:
 - group: Home
 - name: packer_version
-  value: 1.8.3
+  value:
 - name: packer_arm_builder_version
-  value: 0.2.6
+  value:
 
 parameters:
 - name: wpa_supplicant_path
@@ -65,17 +65,29 @@ steps:
         jq ".image_url = \"$IMAGE_URL\" | .image_checksum = \"$IMAGE_SHA256\"" variables.json > temp.json && mv temp.json variables.json
     fi
     
+    if [ -z "${{ variables.packer_version }}" ]; then
+        echo "##vso[task.setvariable variable=packer_version]$(curl -s https://checkpoint-api.hashicorp.com/v1/check/packer | jq -r .current_version)"
+    fi
+    
+    if [ -z "${{ variables.packer_arm_builder_version }}" ]; then
+        GITHUB_TAG="$(curl -s "https://api.github.com/repos/solo-io/packer-plugin-arm-image/releases/latest" | jq -r .tag_name)"
+        echo "##vso[task.setvariable variable=packer_arm_builder_version]${GITHUB_TAG:1}"
+    fi
+    
     cat variables.json
-  displayName: Set lastest image
+    
+    echo "Packer version: $[packer_version]"
+    echo "Packer ARM image builder version: $[packer_arm_builder_version]"
+  displayName: Set lastest versions
 
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
     
-    wget -q https://releases.hashicorp.com/packer/${{ variables.packer_version }}/packer_${{ variables.packer_version }}_linux_amd64.zip
+    wget -q https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip
 
-    unzip -qq packer_${{ variables.packer_version }}_linux_amd64.zip
-
-    wget -q https://github.com/solo-io/packer-builder-arm-image/releases/download/v${{ variables.packer_arm_builder_version }}/packer-builder-arm-image
+    unzip -qq packer_$(packer_version)_linux_amd64.zip
+    
+    wget -q https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-builder-arm-image
 
     chmod +x packer-builder-arm-image
     

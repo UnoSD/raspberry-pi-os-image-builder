@@ -43,7 +43,7 @@ steps:
     secureFile: wpa_supplicant.conf
 
 - ${{ each parameter in parameters }}:
-  - script: echo "${{ parameter.Key }} = $(echo -n '${{ parameter.Value }}' | jq -Rsa .)" >> variables.auto.pkrvars.hcl
+  - script: echo '${{ parameter.Key }} = "${{ parameter.Value }}"' >> variables.auto.pkrvars.hcl
     displayName: Setting ${{ parameter.Key }} in Packer variables file
 
 - script: |

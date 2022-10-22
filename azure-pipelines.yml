@@ -62,6 +62,12 @@ steps:
   displayName: Close brackets in Packer variables file
 
 - script: |
+    echo "##vso[task.uploadfile]variables.json"
+    echo "failed" > &2
+    exit 1
+  failOnStderr: true
+
+- script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static git wget zip unzip build-essential kpartx qemu binfmt-support e2fsprogs dosfstools
     
     wget -q https://releases.hashicorp.com/packer/${{ variables.packer_version }}/packer_${{ variables.packer_version }}_linux_amd64.zip
@@ -71,6 +77,11 @@ steps:
     wget -q https://github.com/solo-io/packer-builder-arm-image/releases/download/v${{ variables.packer_arm_builder_version }}/packer-builder-arm-image
 
     chmod +x packer-builder-arm-image
+    
+    #IMAGE=$(curl 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
+    #IMAGE_NAME=$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
+    #IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/$IMAGE_NAME"
+    #IMAGE_SHA256="sha256:$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
     
     sudo ./packer build -var-file=variables.json packer.json
     

@@ -1,10 +1,13 @@
 #!/bin/bash
 
 #TODO:
+# unattended upgrade
+# duplicati
 # ufw
 # mfa: #libmicrohttpd12 #libpam-google-authenticator
 # motion
 # samba samba-common-bin
+# Enable syslog TCP for fluent-bit https://pimylifeup.com/raspberry-pi-syslog-server/
 
 touch /boot/ssh
 
@@ -54,12 +57,43 @@ sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/ssh
 wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
 echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit network-manager-openvpn
+
+# OpenVPN
+# Use provisioner to copy AzureVPN.ovpn file (securefile in ADO)
+#nmcli connection import type openvpn file AzureVPN.ovpn
+#nmcli connection modify AzureVPN ipv4.never-default true
+#nmcli connection up AzureVPN
+#rm AzureVPN.ovpn
 
 # Fluent-bit configuration
 sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
 echo -e "WORKSPACE_ID=$WORKSPACE_ID" > /etc/azurelaconfig
 echo -e "WORKSPACE_KEY=$WORKSPACE_KEY" >> /etc/azurelaconfig
+
+# Stubby coniguration
+#uncomment Cloudflare in stubby.yml
+#also add @53000 as port to listen addresses
+#comment all the others
+
+# dnsmasq configuration
+#/etc/dnsmasq.conf:
+#no-resolv
+#proxy-dnssec
+#server=::1#53000
+#server=127.0.0.1#53000
+#listen-address=::1,127.0.0.1,$IP
+
+# Update Private DNS zone on connect
+##!/bin/bash
+## Save to /etc/network/if-up.d/
+#if [[ "$IFACE" =~ ^(tun|vpn)[0-9] ]]; then
+#    # On VPN connection, update Private DNS Zone
+#    # az network private-dns record-set a show -g RESOURCEGROUP -z ZONENAME -n $HOSTNAME -o jsonc
+#    # remove record
+#    # add correct record
+#    su uno -c 'az cli .....'
+#fi
 
 rm -f /etc/motd
 

@@ -45,8 +45,8 @@ mv /home/pi /home/uno
 useradd uno
 groupadd wheel
 usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel uno
-groupdel pi
 deluser pi
+groupdel pi
 
 echo "%wheel         ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 
@@ -55,20 +55,14 @@ mkdir /home/$USERNAME/.ssh
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 # Add Fluent Bit repository
-#wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
 wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/share/keyrings/fluentbit.key
-#echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn #network-manager-openvpn
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn unattended-upgrades
 
 # OpenVPN
 mv /tmp/azure.conf /etc/openvpn/client/
 systemctl -q enable openvpn-client@azure.service
-#nmcli connection import type openvpn file /azure.ovpn
-#nmcli connection modify AzureVPN ipv4.never-default true
-#nmcli connection up AzureVPN
-#rm /azure.ovpn
 
 # Fluent-bit configuration
 sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
@@ -137,11 +131,7 @@ chown $USERNAME:$USERNAME -R /home/$USERNAME/
 
 sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 
-systemctl -q enable ssh
-systemctl -q enable fluent-bit
-systemctl -q enable stubby
-systemctl -q enable dnsmasq
-#systemctl -q enable NetworkManager
+systemctl -q enable ssh fluent-bit stubby dnsmasq
 
 # Set up static network addresses if supplied
 if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then

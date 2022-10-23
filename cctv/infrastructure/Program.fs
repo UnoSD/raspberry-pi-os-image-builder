@@ -12,6 +12,11 @@ open Pulumi
 open Pulumi.FSharp.Command.Local
 open Pulumi.AzureNative.Authorization
 open Pulumi.FSharp.Tls
+open Pulumi.FSharp.AzureNative.EventGrid.Inputs
+open Pulumi.FSharp.AzureNative.EventGrid
+open Pulumi.AzureNative.EventGrid.Inputs
+open Pulumi.AzureNative.Logic
+open Pulumi.FSharp.AzureNative.Logic
 
 Deployment.run (fun () ->
     let group =
@@ -78,11 +83,77 @@ Deployment.run (fun () ->
         ]
     }
     
-    // pulumi stack output PrivateKey --show-secrets > pk
-    // chmod go-rwx pk
-    // sftp -o "PubkeyAcceptedKeyTypes=+ssh-rsa" -i pk ACCOUNT.CONTAINER.USERNAME@ACCOUNT.blob.core.windows.net
-    // fstab: llib@192.168.1.200:/home/llib/FAH /media/FAH2 fuse.sshfs defaults,_netdev 0 0
-    // fstab: user@host:/remote/path /local/path  fuse.sshfs noauto,x-systemd.automount,_netdev,user,idmap=user,follow_symlinks,identityfile=/home/user/.ssh/id_rsa,allow_other,default_permissions,uid=USER_ID_N,gid=USER_GID_N 0 0
+    let triggerName =
+        "manual"
+    
+    let logicApp =
+        workflow {
+            name          (nameOne "logic")
+            resourceGroup group.Name
+            //managedServiceIdentity { resourceType ManagedServiceIdentityType.SystemAssigned }
+            definition    ($"""{{
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {{}},
+    "contentVersion": "1.0.0.0",
+    "outputs": {{}},
+    "parameters": {{}},
+    "triggers": {{
+        "{triggerName}": {{
+            "inputs": {{
+                "schema": {{}}
+            }},
+            "kind": "Http",
+            "type": "Request"
+        }}
+    }}
+}}""" |> InputJson.op_Implicit)
+        }
+    
+    let triggerUrl =
+        ListWorkflowTriggerCallbackUrl.Invoke(ListWorkflowTriggerCallbackUrlInvokeArgs(
+            ResourceGroupName = group.Name,
+            WorkflowName      = logicApp.Name,
+            TriggerName       = triggerName
+        )).Apply(fun x -> x.Value)
+    
+    let topic =
+        systemTopic {
+            name          (nameOne "evgt")
+            resourceGroup group.Name
+            source        storage.Id
+            topicType     "Microsoft.Storage.StorageAccounts"
+        }
+    
+    systemTopicEventSubscription {
+        name            (nameOne "evgs")
+        systemTopicName topic.Name
+        resourceGroup   group.Name
+        
+        eventSubscriptionFilter {
+            includedEventTypes [
+                "Microsoft.Storage.BlobCreated"
+            ]
+            
+            advancedFilters (
+                StringInAdvancedFilterArgs(Key = "data.api",
+                                           Values = inputList [ input "SftpCommit" ],
+                                           OperatorType = "StringIn")
+            )
+        }
+        
+        destination (WebHookEventSubscriptionDestinationArgs(
+            EndpointType                           = "WebHook",
+            EndpointUrl                            = triggerUrl,
+            AzureActiveDirectoryApplicationIdOrUri = null,
+            AzureActiveDirectoryTenantId           = null
+        ))
+    }
+    
+    let testCommand =
+        Output.Format($"""pulumi stack output PrivateKey --show-secrets > pk && chmod go-rwx pk && scp -o "PubkeyAcceptedKeyTypes=+ssh-rsa" -i pk Program.fs {storage.Name}.{container.Name}.{config["username"]}@{storage.Name}.blob.core.windows.net:/; rm pk""")
+    
+    // fstab: user@host:/remote/path /local/path fuse.sshfs noauto,x-systemd.automount,_netdev,user,idmap=user,follow_symlinks,identityfile=/home/user/.ssh/id_rsa,allow_other,default_permissions,uid=USER_ID_N,gid=USER_GID_N 0 0
     dict [ "PrivateKey", sshPrivateKey.PrivateKeyOpenssh
-           "PublicKey" , sshPrivateKey.PublicKeyOpenssh  ]
+           "Test"      , testCommand 
+           "PublicKey" , sshPrivateKey.PublicKeyOpenssh ]
 )

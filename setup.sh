@@ -8,6 +8,7 @@
 # motion
 # samba samba-common-bin
 # Enable syslog TCP for fluent-bit https://pimylifeup.com/raspberry-pi-syslog-server/
+# BATCH FLUENT-BIT OUTPUTS, SO IT SENDS EVERY 1/2 minute but with per-second data (so reduce to second for slower stuff)
 
 # Enable SSH, probably useless given I enable it with systemd below
 touch /boot/ssh

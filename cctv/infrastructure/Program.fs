@@ -85,26 +85,30 @@ Deployment.run (fun () ->
     
     let triggerName =
         "manual"
-    
-    let logicApp =
-        workflow {
-            name          (nameOne "logic")
-            resourceGroup group.Name
-            //managedServiceIdentity { resourceType ManagedServiceIdentityType.SystemAssigned }
-            definition    ($"""{{
-    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-    "actions": {{}},
-    "contentVersion": "1.0.0.0",
-    "outputs": {{}},
-    "parameters": {{}},
-    "triggers": {{
+
+    let triggers = $"""{{
         "{triggerName}": {{
             "inputs": {{
                 "schema": {{}}
             }},
             "kind": "Http",
             "type": "Request"
-        }}
+        }}"""
+
+    // Add MI
+    // "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    let logicApp =
+        workflow {
+            name          (nameOne "logic")
+            resourceGroup group.Name
+            //managedServiceIdentity { resourceType ManagedServiceIdentityType.SystemAssigned }
+            parameters [
+                "storage-account-name", Inputs.workflowParameter { value "" }
+            ]
+            definition    ($"""{{
+    "actions": {{}},
+    "parameters": {{}},
+    "triggers": {triggers}
     }}
 }}""" |> InputJson.op_Implicit)
         }

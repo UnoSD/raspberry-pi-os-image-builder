@@ -1,0 +1,100 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "GenerateSasUrl": {
+                "inputs": {
+                    "body": {
+                        "Permissions": "Read"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['cn-azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/datasets/@{encodeURIComponent('$$STORAGEACCOUNT$$')}/CreateSharedLinkByPath",
+                    "queries": {
+                        "path": "@{substring(triggerBody()[0].data.blobUrl, length('https://$$STORAGEACCOUNT$$.blob.core.windows.net/'))}"
+                    }
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "SendEmail": {
+                "inputs": {
+                    "body": {
+                        "Body": "<p>@{body('GenerateSasUrl')?['WebUrl']}</p>",
+                        "Importance": "Normal",
+                        "Subject": "Intruder!",
+                        "To": "$$EMAIL$$"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['cn-office365']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "GenerateSasUrl": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "items": {
+                            "properties": {
+                                "data": {
+                                    "properties": {
+                                        "blobUrl": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "data"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "cn-azureblob": {
+                    "connectionId": "/subscriptions/$$SUBSCRIPTION$$/resourceGroups/$$RESOURCEGROUP$$/providers/Microsoft.Web/connections/cn-azureblob",
+                    "connectionName": "cn-azureblob",
+                    "id": "/subscriptions/$$SUBSCRIPTION$$/providers/Microsoft.Web/locations/$$REGION$$/managedApis/cn-azureblob"
+                },
+                "cn-office365": {
+                    "connectionId": "/subscriptions/$$SUBSCRIPTION$$/resourceGroups/$$RESOURCEGROUP$$/providers/Microsoft.Web/connections/cn-office365",
+                    "connectionName": "cn-office365",
+                    "id": "/subscriptions/$$SUBSCRIPTION$$/providers/Microsoft.Web/locations/$$REGION$$/managedApis/cn-office365"
+                }
+            }
+        }
+    }
+}

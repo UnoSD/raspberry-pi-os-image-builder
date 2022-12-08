@@ -73,7 +73,7 @@ steps:
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static kpartx qemu binfmt-support e2fsprogs dosfstools libarchive-tools
     
-    sudo packer init
+    sudo packer init image.pkr.hcl
 
     sudo packer build -var-file=variables.auto.pkrvars.hcl image.pkr.hcl
   displayName: Build image

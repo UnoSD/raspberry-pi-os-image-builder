@@ -6,10 +6,6 @@ pool:
 
 variables:
 - group: Home
-- name: packer_version
-  value:
-- name: packer_arm_builder_version
-  value:
 
 parameters:
 - name: wpa_supplicant_path
@@ -71,28 +67,15 @@ steps:
         sed -i "s#image_checksum = \"\"#image_checksum = \"$IMAGE_SHA256\"#" variables.auto.pkrvars.hcl
     fi
     
-    if [ -z "${{ variables.packer_version }}" ]; then
-        echo "##vso[task.setvariable variable=packer_version]$(curl -s https://checkpoint-api.hashicorp.com/v1/check/packer | jq -r .current_version)"
-    fi
-    
-    if [ -z "${{ variables.packer_arm_builder_version }}" ]; then
-        GITHUB_TAG="$(curl -s "https://api.github.com/repos/solo-io/packer-plugin-arm-image/releases/latest" | jq -r .tag_name)"
-        echo "##vso[task.setvariable variable=packer_arm_builder_version]${GITHUB_TAG:1}"
-    fi
-    
     cat variables.auto.pkrvars.hcl
   displayName: Set lastest versions
 
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static kpartx qemu binfmt-support e2fsprogs dosfstools libarchive-tools
     
-    wget -qO- https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_linux_amd64.zip | bsdtar xf -
-    
-    wget -qO- https://github.com/solo-io/packer-builder-arm-image/releases/download/v$(packer_arm_builder_version)/packer-plugin-arm-image_v$(packer_arm_builder_version)_x5.0_linux_amd64.zip | bsdtar xf -
+    sudo packer init
 
-    chmod +x packer*
-
-    sudo ./packer build -var-file=variables.auto.pkrvars.hcl image.pkr.hcl
+    sudo packer build -var-file=variables.auto.pkrvars.hcl image.pkr.hcl
   displayName: Build image
   failOnStderr: true
 # Not working, open an issue on Packer

@@ -26,6 +26,15 @@ variable "wpa_supplicant_path" {
     default = ""
 }
 
+packer {
+    required_plugins {
+        arm-image = {
+            # Does it use the latest if not specified? version = ">= 0.2.5" # Pass version as argument
+            source  = "github.com/solo-io/arm-image"
+        }
+    }
+}
+
 source "arm-image" "raspbian" {
     iso_url      = "${var.image_url}"
     iso_checksum = "${var.image_checksum}"

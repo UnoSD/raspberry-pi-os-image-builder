@@ -8,12 +8,14 @@
 # motion
 # samba samba-common-bin
 # Enable syslog TCP for fluent-bit https://pimylifeup.com/raspberry-pi-syslog-server/
+# BATCH FLUENT-BIT OUTPUTS, SO IT SENDS EVERY 1/2 minute but with per-second data (so reduce to second for slower stuff)
 
+# Enable SSH, probably useless given I enable it with systemd below
 touch /boot/ssh
 
 # Disable mouse mode in Vim
-echo "" >> /etc/vimrc
-cat >> /etc/vimrc << EOF
+echo "" >> /etc/vim/vimrc
+cat >> /etc/vim/vimrc << EOF
 set mouse=
 set ttymouse=
 EOF
@@ -37,38 +39,35 @@ if ! shopt -oq posix; then
 fi
 EOF
 
+# Set user passphrase
 # Can we make it completely passwordless instead of a random 60 char passphrase?
 echo "$USERNAME:$(head -n 60 < /dev/urandom | tr -d '\n' | openssl passwd -6 -stdin)" >> /boot/userconf.txt
 
-mv /home/pi /home/uno
-
-useradd uno
+# Remove default user and add custom
+mv /home/pi /home/$USERNAME
+useradd $USERNAME
 groupadd wheel
-usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel uno
-groupdel pi
+usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel $USERNAME
 deluser pi
+groupdel pi
 
+# Add wheel group to no password sudo
 echo "%wheel         ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+# Set up ssh and disable password
 mkdir /home/$USERNAME/.ssh
-
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 # Add Fluent Bit repository
-#wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
 wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/share/keyrings/fluentbit.key
-#echo "deb https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn #network-manager-openvpn
+# Install software
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn unattended-upgrades dnsutils
 
-# OpenVPN
+# Set up OpenVPN
 mv /tmp/azure.conf /etc/openvpn/client/
 systemctl -q enable openvpn-client@azure.service
-#nmcli connection import type openvpn file /azure.ovpn
-#nmcli connection modify AzureVPN ipv4.never-default true
-#nmcli connection up AzureVPN
-#rm /azure.ovpn
 
 # Fluent-bit configuration
 sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
@@ -117,6 +116,33 @@ server=127.0.0.1#53000
 listen-address=127.0.0.1,$IP
 EOF
 
+# Unattended upgrades (wrong files, WIP)
+cat > /etc/auto_upgrade <<EOF
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "1";
+APT::Periodic::AutocleanInterval "3";
+APT::Periodic::Verbose "1";
+APT::Periodic::Unattended-Upgrade "1";
+EOF
+cat > /etc/unattended_upgrade <<EOF
+// The Raspberry Pi Foundation doesn't use separate a separate security upgrades channel.
+// To make sure your RPi has the latest security fixes, you have to install all updates.
+
+Unattended-Upgrade::Origins-Pattern {
+        "origin=Raspbian,codename=${distro_codename},label=Raspbian";
+        "origin=Raspberry Pi Foundation,codename=${distro_codename},label=Raspberry Pi Foundation";
+};
+
+// Automatically reboot *WITHOUT CONFIRMATION* if
+//  the file /var/run/reboot-required is found after the upgrade
+Unattended-Upgrade::Automatic-Reboot "true";
+
+// If automatic reboot is enabled and needed, reboot at the specific
+// time instead of immediately
+//  Default: "now"
+Unattended-Upgrade::Automatic-Reboot-Time "03:00";
+EOF
+
 # Update Private DNS zone on connect
 ##!/bin/bash
 ## Save to /etc/network/if-up.d/
@@ -129,6 +155,7 @@ EOF
 #fi
 
 rm -f /etc/motd
+rm -f /etc/motd.d/*
 
 echo "$HOSTNAME" > /etc/hostname
 sed -i "s/^127.0.0.1[ \t]*raspberrypi/127.0.0.1 $HOSTNAME/" /etc/hosts
@@ -137,11 +164,7 @@ chown $USERNAME:$USERNAME -R /home/$USERNAME/
 
 sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 
-systemctl -q enable ssh
-systemctl -q enable fluent-bit
-systemctl -q enable stubby
-systemctl -q enable dnsmasq
-#systemctl -q enable NetworkManager
+systemctl -q enable ssh fluent-bit stubby dnsmasq
 
 # Set up static network addresses if supplied
 if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then

@@ -26,10 +26,6 @@ parameters:
   default: $(workspace_key)
 - name: timezone
   default: $(timezone)
-- name: image_url
-  default:
-- name: image_checksum
-  default:
         
 steps:
 - task: DownloadSecureFile@1

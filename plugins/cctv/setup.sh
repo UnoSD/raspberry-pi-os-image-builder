@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xv
 
 # Use blob sftp and event grid to trigger alarm
 

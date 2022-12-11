@@ -78,12 +78,6 @@ steps:
     sudo packer build -var-file=variables.auto.pkrvars.hcl image.pkr.hcl
   displayName: Build image
   failOnStderr: true
-# Not working, open an issue on Packer
-#  env:
-#    ${{ each parameter in parameters }}:
-#      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
-#    #PKR_VAR_image_url: $(SET VARIABLE IN Set lastest versions TASK)
-#    #PKR_VAR_image_checksum: $(SET VARIABLE IN Set lastest versions TASK)
 
 - task: PublishPipelineArtifact@1
   inputs:

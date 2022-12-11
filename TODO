@@ -1,0 +1,24 @@
+#TODO:
+# unattended upgrade
+# duplicati
+# ufw
+# mfa: #libmicrohttpd12 #libpam-google-authenticator
+# motion
+# samba samba-common-bin
+# Enable syslog TCP for fluent-bit https://pimylifeup.com/raspberry-pi-syslog-server/
+# BATCH FLUENT-BIT OUTPUTS, SO IT SENDS EVERY 1/2 minute but with per-second data (so reduce to second for slower stuff)
+
+- script: |
+    sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static kpartx qemu binfmt-support e2fsprogs dosfstools libarchive-tools
+    
+    packer init image.pkr.hcl
+
+    sudo packer build -var-file=variables.auto.pkrvars.hcl image.pkr.hcl
+  displayName: Build image
+  failOnStderr: true
+# Not working, open an issue on Packer
+#  env:
+#    ${{ each parameter in parameters }}:
+#      PKR_VAR_${{ parameter.Key }}: ${{ parameter.Value }}
+#    #PKR_VAR_image_url: $(SET VARIABLE IN Set lastest versions TASK)
+#    #PKR_VAR_image_checksum: $(SET VARIABLE IN Set lastest versions TASK)

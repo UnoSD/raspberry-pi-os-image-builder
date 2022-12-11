@@ -45,6 +45,11 @@ build {
     sources = [ "source.arm-image.raspbian" ]
 
     provisioner "file" {
+        source      = "plugins"
+        destination = "/tmp"
+    }
+    
+    provisioner "file" {
         source      = "${var.openvpn_file_path}"
         destination = "/tmp/azure.conf"
     }
@@ -71,11 +76,6 @@ build {
     provisioner "file" {
         source      = "${var.wpa_supplicant_path}"
         destination = "/etc/wpa_supplicant/wpa_supplicant.conf"
-    }
-    
-    provisioner "file" {
-        source      = "fluent-bit.conf"
-        destination = "/etc/fluent-bit/fluent-bit.conf"
     }
     
     provisioner "shell" {

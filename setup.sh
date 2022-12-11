@@ -1,15 +1,5 @@
 #!/bin/bash -xv
 
-#TODO:
-# unattended upgrade
-# duplicati
-# ufw
-# mfa: #libmicrohttpd12 #libpam-google-authenticator
-# motion
-# samba samba-common-bin
-# Enable syslog TCP for fluent-bit https://pimylifeup.com/raspberry-pi-syslog-server/
-# BATCH FLUENT-BIT OUTPUTS, SO IT SENDS EVERY 1/2 minute but with per-second data (so reduce to second for slower stuff)
-
 # Enable SSH, probably useless given I enable it with systemd below
 touch /boot/ssh
 
@@ -58,10 +48,6 @@ echo "%wheel         ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 mkdir /home/$USERNAME/.ssh
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-# Add Fluent Bit repository
-wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/share/keyrings/fluentbit.key
-echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
-
 # Install software
 apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install \
   vim \
@@ -72,17 +58,11 @@ apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommen
   cockpit-pcp \
   stubby \
   dnsmasq \
-  fluent-bit \
   dnsutils
 
 # Set up OpenVPN
 mv /tmp/azure.conf /etc/openvpn/client/
 systemctl -q enable openvpn-client@azure.service
-
-# Fluent-bit configuration
-sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service
-echo -e "WORKSPACE_ID=$WORKSPACE_ID" > /etc/azurelaconfig
-echo -e "WORKSPACE_KEY=$WORKSPACE_KEY" >> /etc/azurelaconfig
 
 # Stubby coniguration
 cat > /etc/stubby/stubby.yml << EOF
@@ -176,7 +156,6 @@ sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 
 systemctl -q enable \
   ssh \
-  fluent-bit \
   stubby \
   dnsmasq
 
@@ -196,3 +175,5 @@ static domain_name_servers=1.1.1.1 1.0.0.1
 EOF
 
 fi
+
+find /tmp/plugins -name setup.sh -exec {} \;

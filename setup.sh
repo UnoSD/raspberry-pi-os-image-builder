@@ -66,14 +66,14 @@ echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentb
 apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install \
   vim \
   jc \
-  openvpn #\
-#  unattended-upgrades \
-#  cockpit \
-#  cockpit-pcp \
-#  stubby \
-#  dnsmasq \
-#  fluent-bit \  
-#  dnsutils
+  openvpn \
+  unattended-upgrades \
+  cockpit \
+  cockpit-pcp \
+  stubby \
+  dnsmasq \
+  fluent-bit \
+  dnsutils
 
 # Set up OpenVPN
 mv /tmp/azure.conf /etc/openvpn/client/
@@ -175,10 +175,10 @@ chown $USERNAME:$USERNAME -R /home/$USERNAME/
 sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 
 systemctl -q enable \
-  ssh #\
-#  fluent-bit \
-#  stubby \
-#  dnsmasq
+  ssh \
+  fluent-bit \
+  stubby \
+  dnsmasq
 
 # Set up static network addresses if supplied
 if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then

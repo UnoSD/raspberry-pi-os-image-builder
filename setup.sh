@@ -73,4 +73,6 @@ EOF
 
 fi
 
-find /tmp/plugins -name setup.sh -exec {} \;
+tr " " "\n" <<<"$EXCLUDE_PLUGINS" >> /tmp/exclude-plugins
+
+find /tmp/plugins -name setup.sh | grep -vf /tmp/exclude-plugins | xargs -n1 bash

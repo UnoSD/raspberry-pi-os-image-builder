@@ -26,6 +26,8 @@ parameters:
   default: $(workspace_key)
 - name: timezone
   default: $(timezone)
+- name: exclude_plugins
+  default: $(exclude_plugins)
 - name: image_url
   default:
 - name: image_checksum

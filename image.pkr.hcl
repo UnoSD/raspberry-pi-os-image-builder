@@ -7,6 +7,11 @@ variable "hostname"            { type = string }
 variable "timezone"            { type = string }
 variable "workspace_id"        { type = string }
 
+variable "exclude_plugins" {
+    type    = string
+    default = "none"
+}
+
 variable "workspace_key" {
     type = string
     sensitive = true
@@ -63,7 +68,8 @@ build {
             "HOSTNAME=${var.hostname}",
             "WORKSPACE_ID=${var.workspace_id}",
             "WORKSPACE_KEY=${var.workspace_key}",
-            "TIMEZONE=${var.timezone}"
+            "TIMEZONE=${var.timezone}",
+            "EXCLUDE_PLUGINS=${var.exclude_plugins}"
         ]
         script = "./setup.sh"
     }

@@ -3,13 +3,6 @@
 # Enable SSH, probably useless given I enable it with systemd below
 touch /boot/ssh
 
-# Disable mouse mode in Vim
-echo "" >> /etc/vim/vimrc
-cat >> /etc/vim/vimrc << EOF
-set mouse=
-set ttymouse=
-EOF
-
 # Set time zone
 ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 
@@ -49,100 +42,7 @@ mkdir /home/$USERNAME/.ssh
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 # Install software
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install \
-  vim \
-  jc \
-  openvpn \
-  unattended-upgrades \
-  cockpit \
-  cockpit-pcp \
-  stubby \
-  dnsmasq \
-  dnsutils
-
-# Set up OpenVPN
-mv /tmp/azure.conf /etc/openvpn/client/
-systemctl -q enable openvpn-client@azure.service
-
-# Stubby coniguration
-cat > /etc/stubby/stubby.yml << EOF
-resolution_type: GETDNS_RESOLUTION_STUB
-
-dns_transport_list:
-  - GETDNS_TRANSPORT_TLS
-
-tls_authentication: GETDNS_AUTHENTICATION_REQUIRED
-
-tls_query_padding_blocksize: 128
-
-edns_client_subnet_private : 1
-
-round_robin_upstreams: 1
-
-idle_timeout: 10000
-
-listen_addresses:
-  - 127.0.0.1@53000
-
-appdata_dir: "/var/cache/stubby"
-
-upstream_recursive_servers:
-  - address_data: 1.1.1.1
-    tls_auth_name: "cloudflare-dns.com"
-  - address_data: 1.0.0.1
-    tls_auth_name: "cloudflare-dns.com"
-
-  - address_data: 2606:4700:4700::1111
-    tls_auth_name: "cloudflare-dns.com"
-  - address_data: 2606:4700:4700::1001
-    tls_auth_name: "cloudflare-dns.com"
-EOF
-
-# dnsmasq configuration
-cat > /etc/dnsmasq.conf <<EOF
-no-resolv
-proxy-dnssec
-server=127.0.0.1#53000
-listen-address=127.0.0.1,$IP
-EOF
-
-# Unattended upgrades (wrong files, WIP)
-cat > /etc/auto_upgrade <<EOF
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Download-Upgradeable-Packages "1";
-APT::Periodic::AutocleanInterval "3";
-APT::Periodic::Verbose "1";
-APT::Periodic::Unattended-Upgrade "1";
-EOF
-cat > /etc/unattended_upgrade <<EOF
-// The Raspberry Pi Foundation doesn't use separate a separate security upgrades channel.
-// To make sure your RPi has the latest security fixes, you have to install all updates.
-
-Unattended-Upgrade::Origins-Pattern {
-        "origin=Raspbian,codename=${distro_codename},label=Raspbian";
-        "origin=Raspberry Pi Foundation,codename=${distro_codename},label=Raspberry Pi Foundation";
-};
-
-// Automatically reboot *WITHOUT CONFIRMATION* if
-//  the file /var/run/reboot-required is found after the upgrade
-Unattended-Upgrade::Automatic-Reboot "true";
-
-// If automatic reboot is enabled and needed, reboot at the specific
-// time instead of immediately
-//  Default: "now"
-Unattended-Upgrade::Automatic-Reboot-Time "03:00";
-EOF
-
-# Update Private DNS zone on connect
-##!/bin/bash
-## Save to /etc/network/if-up.d/
-#if [[ "$IFACE" =~ ^(tun|vpn)[0-9] ]]; then
-#    # On VPN connection, update Private DNS Zone
-#    # az network private-dns record-set a show -g RESOURCEGROUP -z ZONENAME -n $HOSTNAME -o jsonc
-#    # remove record
-#    # add correct record
-#    su uno -c 'az cli .....'
-#fi
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install jc
 
 rm -f /etc/motd
 rm -f /etc/motd.d/*
@@ -154,10 +54,7 @@ chown $USERNAME:$USERNAME -R /home/$USERNAME/
 
 sed -i '/^session[ \t]*optional[ \t]*pam_motd.so.*/d' /etc/pam.d/login
 
-systemctl -q enable \
-  ssh \
-  stubby \
-  dnsmasq
+systemctl -q enable ssh
 
 # Set up static network addresses if supplied
 if [[ -n ${IP} && -n ${SUBNET} && -n ${GATEWAY} ]]; then

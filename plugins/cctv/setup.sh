@@ -36,3 +36,5 @@ mkdir /var/{log,run}/motion
 chown motion:motion /var/{log,run}/motion
 
 systemctl -q enable motion
+
+#echo "user@host:/remote/path /local/path fuse.sshfs noauto,x-systemd.automount,_netdev,user,idmap=user,follow_symlinks,identityfile=/home/user/.ssh/id_rsa,allow_other,default_permissions,uid=USER_ID_N,gid=USER_GID_N 0 0" >> /etc/fstab

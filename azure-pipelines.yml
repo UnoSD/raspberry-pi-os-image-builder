@@ -28,6 +28,8 @@ parameters:
   default: $(timezone)
 - name: exclude_plugins
   default: $(exclude_plugins)
+- name: motion_password
+  default: $(motion_password)
 - name: image_url
   default:
 - name: image_checksum

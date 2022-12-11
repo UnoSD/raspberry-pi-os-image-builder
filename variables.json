@@ -1,0 +1,28 @@
+{
+    "hostname": {
+        "value": "HOSTNAME"
+    },
+    "motion_password": {
+        "value": null,
+        "isSecret": true
+    },
+    "network": {
+        "value": "{ip = \"IP\", subnet = \"SNET\", gateway = \"GATEWAY\"}"
+    },
+    "timezone": {
+        "value": "Europe/Rome"
+    },
+    "username": {
+        "value": "USERNAME"
+    },
+    "workspace_id": {
+        "value": "WORKSPACEID"
+    },
+    "workspace_key": {
+        "value": null,
+        "isSecret": true
+    },
+    "exclude_plugins": {
+        "value": "none"
+    }
+}

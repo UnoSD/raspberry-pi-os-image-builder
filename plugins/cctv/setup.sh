@@ -16,9 +16,9 @@
 TARGET_DIR=/mnt/blobsftp
 WEBCONTROL_CERT=/etc/ssl/motion/motion.pem
 WEBCONTROL_KEY=/etc/ssl/motion/motion.key
-USERNAME=user
-PASSWORD=pass
-HOSTNAME=pihostname
+USERNAME=$USERNAME
+PASSWORD=$MOTION_PASSWORD
+HOSTNAME=$HOSTNAME
 
 mkdir /etc/ssl/motion
 cd /etc/ssl/motion
@@ -29,10 +29,10 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout motion.key -
 
 apt-get install motion -y --no-install-recommends
 
-envsubst motion.conf > /etc/motion/motion.conf
+envsubst /tmp/plugins/cctv/motion.conf > /etc/motion/motion.conf
 
 mkdir /var/{log,run}/motion
 
 chown motion:motion /var/{log,run}/motion
 
-systemctl enable motion
+systemctl -q enable motion

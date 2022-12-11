@@ -31,14 +31,14 @@ packer {
         arm-image = {
             version = ">= 0.2.5" # Pass version as argument
             source  = "github.com/solo-io/arm-image"
-            target_image_size = 4294967296
         }
     }
 }
 
 source "arm-image" "raspbian" {
-    iso_url      = "${var.image_url}"
-    iso_checksum = "${var.image_checksum}"
+    iso_url           = "${var.image_url}"
+    iso_checksum      = "${var.image_checksum}"
+    target_image_size = 4294967296
 }
 
 build {

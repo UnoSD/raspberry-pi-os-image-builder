@@ -5,7 +5,7 @@ wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/sh
 echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
 # Install software
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install fluent-bit
+apt-get -qqy --no-install-recommends install fluent-bit
 
 # Fluent-bit configuration
 sed -i 's/\[Service\]/\[Service\]\nEnvironmentFile=\/etc\/azurelaconfig/' /lib/systemd/system/fluent-bit.service

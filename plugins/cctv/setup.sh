@@ -27,7 +27,7 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout motion.key -
 # PACKER COPY /etc/ssl/motion/motion.pem TO HOST
 # AZDO PUBLISH ARTIFACT
 
-apt-get install motion -y --no-install-recommends
+apt-get -qqy --no-install-recommends install motion
 
 envsubst /tmp/plugins/cctv/motion.conf > /etc/motion/motion.conf
 

@@ -1,7 +1,7 @@
 #!/bin/bash -xv
 
 # Install software
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install unattended-upgrades
+apt-get -qqy --no-install-recommends install unattended-upgrades
 
 # Unattended upgrades (wrong files, WIP)
 cat > /etc/auto_upgrade <<EOF

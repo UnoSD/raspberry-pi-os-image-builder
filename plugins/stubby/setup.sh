@@ -1,7 +1,7 @@
 #!/bin/bash -xv
 
 # Install software
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install stubby dnsmasq dnsutils
+apt-get -qqy --no-install-recommends install stubby dnsmasq dnsutils
 
 # Stubby coniguration
 cat > /etc/stubby/stubby.yml << EOF

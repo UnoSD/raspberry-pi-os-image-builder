@@ -48,7 +48,7 @@ packer {
 source "arm-image" "raspbian" {
     iso_url           = "${var.image_url}"
     iso_checksum      = "${var.image_checksum}"
-    target_image_size = 2147483648
+    target_image_size = 4294967296
 }
 
 build {

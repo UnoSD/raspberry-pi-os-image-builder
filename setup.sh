@@ -48,8 +48,8 @@ mv /home/pi /home/$USERNAME
 useradd $USERNAME
 groupadd wheel
 usermod -a -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi,wheel $USERNAME
-deluser pi
 groupdel pi
+deluser pi
 
 # Add wheel group to no password sudo
 echo "%wheel         ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -63,7 +63,17 @@ wget -qO - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/sh
 echo "deb [signed-by=/usr/share/keyrings/fluentbit.key] https://packages.fluentbit.io/raspbian/bullseye bullseye main" >> /etc/apt/sources.list
 
 # Install software
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install vim jc cockpit cockpit-pcp stubby dnsmasq fluent-bit openvpn unattended-upgrades dnsutils
+apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install \
+  vim \
+  jc \
+  cockpit \
+  cockpit-pcp \
+  stubby \
+  dnsmasq \
+  fluent-bit \
+  openvpn \
+  unattended-upgrades \
+  dnsutils
 
 # Set up OpenVPN
 mv /tmp/azure.conf /etc/openvpn/client/

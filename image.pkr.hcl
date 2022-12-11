@@ -31,6 +31,7 @@ packer {
         arm-image = {
             version = ">= 0.2.5" # Pass version as argument
             source  = "github.com/solo-io/arm-image"
+            target_image_size = 4294967296
         }
     }
 }

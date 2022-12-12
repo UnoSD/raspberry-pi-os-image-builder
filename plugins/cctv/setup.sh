@@ -27,7 +27,7 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout motion.key -
 # PACKER COPY /etc/ssl/motion/motion.pem TO HOST
 # AZDO PUBLISH ARTIFACT
 
-apt-get -qqy --no-install-recommends install motion
+apt-get -qqy --no-install-recommends install motion sshfs
 
 envsubst /tmp/plugins/cctv/motion.conf > /etc/motion/motion.conf
 
@@ -37,4 +37,6 @@ chown motion:motion /var/{log,run}/motion
 
 systemctl -q enable motion
 
-#echo "user@host:/remote/path /local/path fuse.sshfs noauto,x-systemd.automount,_netdev,user,idmap=user,follow_symlinks,identityfile=/home/user/.ssh/id_rsa,allow_other,default_permissions,uid=USER_ID_N,gid=USER_GID_N 0 0" >> /etc/fstab
+# FROM PULUMI: pulumi stack output PrivateKey --show-secrets > pk
+#mkdir $TARGET_DIR
+#echo "ACCOUNT.motion.uno@ACCOUNT.blob.core.windows.net:/ $TARGET_DIR fuse.sshfs noauto,x-systemd.automount,_netdev,user,idmap=user,follow_symlinks,identityfile=/home/USER/pk,allow_other,default_permissions,uid=1000,gid=1000 0 0" >> /etc/fstab

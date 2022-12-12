@@ -48,7 +48,8 @@ rm -f /etc/motd
 rm -f /etc/motd.d/*
 
 echo "$HOSTNAME" > /etc/hostname
-sed -i "s/^127.0.0.1[ \t]*raspberrypi/127.0.0.1 $HOSTNAME/" /etc/hosts
+#sed -i "s/^127.0.0.1[ \t]*raspberrypi/127.0.0.1 $HOSTNAME/" /etc/hosts
+echo "127.0.0.1 $HOSTNAME" > /etc/hosts
 
 chown $USERNAME:$USERNAME -R /home/$USERNAME/
 

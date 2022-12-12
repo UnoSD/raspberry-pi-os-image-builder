@@ -17,6 +17,9 @@ open Pulumi.FSharp.AzureNative.EventGrid
 open Pulumi.AzureNative.EventGrid.Inputs
 open Pulumi.AzureNative.Logic
 open Pulumi.FSharp.AzureNative.Logic
+open Pulumi.FSharp.Outputs
+open Pulumi.FSharp.AzureNative.Web.Inputs
+open Pulumi.FSharp.AzureNative.Web
 
 Deployment.run (fun () ->
     let group =
@@ -41,10 +44,10 @@ Deployment.run (fun () ->
             PublicAccess.None
         }
     
-    let subscriptionId =
+    let subId =
         GetClientConfig.InvokeAsync().Result.SubscriptionId
     
-    let setSftpUrl = Output.Format($"https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{group.Name}/providers/Microsoft.Storage/storageAccounts/{storage.Name}?api-version=2021-09-01")
+    let setSftpUrl = Output.Format($"https://management.azure.com/subscriptions/{subId}/resourceGroups/{group.Name}/providers/Microsoft.Storage/storageAccounts/{storage.Name}?api-version=2021-09-01")
     let setSftpBody enabled = $""" "{{ "properties": {{ "isSftpEnabled": %b{enabled} }} }}" """
     let setSftpCliCommand enabled = Output.Format($"az rest --method PATCH --body {setSftpBody enabled} --url {setSftpUrl} --headers Content-Type=application/json")
     
@@ -89,30 +92,177 @@ Deployment.run (fun () ->
     let triggers = $"""{{
         "{triggerName}": {{
             "inputs": {{
-                "schema": {{}}
+                "schema": {{
+                    "items": {{
+                        "properties": {{
+                            "data": {{
+                                "properties": {{
+                                    "blobUrl": {{
+                                        "type": "string"
+                                    }}
+                                }},
+                                "type": "object"
+                            }}
+                        }},
+                        "required": [
+                            "data"
+                        ],
+                        "type": "object"
+                    }},
+                    "type": "array"
+                }}
             }},
             "kind": "Http",
             "type": "Request"
-        }}"""
+        }}
+    }}"""
 
+    let blobConnection =
+        let accessKey =
+            ListStorageAccountKeys.Invoke(ListStorageAccountKeysInvokeArgs(
+                AccountName       = storage.Name,
+                ResourceGroupName = group.Name))
+                                  .Apply(fun x -> x.Keys[0].Value)
+        
+        connection {
+            resourceGroup group.Name
+            name          (nameOne "con-azureblob")
+            
+            apiConnectionDefinitionProperties {
+                apiReference {
+                    id (Output.Format($"/subscriptions/{subId}/providers/Microsoft.Web/locations/{group.Location}/managedApis/azureblob"))
+                }
+                
+                parameterValues [
+                    "accountName", storage.Name
+                    "accessKey"  , accessKey
+                ]
+            }
+        }
+
+    let emailConnection =
+        let subId = subId
+        
+        connection {
+            resourceGroup group.Name
+            name          (nameOne "con-office365")
+            
+            apiConnectionDefinitionProperties {
+                apiReference {
+                    id (Output.Format($"/subscriptions/{subId}/providers/Microsoft.Web/locations/{group.Location}/managedApis/office365"))
+                }
+            }
+        }
+
+    let workflowDefinition =
+        output {
+            let! storageName = storage.Name
+            let! blobConnectionName = blobConnection.Name
+            let! emailConnectionName = emailConnection.Name
+            let email = config["notificationEmail"]
+            
+            let actions =
+                $"""{{
+            "Generate SAS URL": {{
+                "inputs": {{
+                    "body": {{
+                        "Permissions": "Read"
+                    }},
+                    "host": {{
+                        "connection": {{
+                            "name": "@parameters('$connections')['{blobConnectionName}']['connectionId']"
+                        }}
+                    }},
+                    "method": "post",
+                    "path": "/v2/datasets/{storageName}/CreateSharedLinkByPath",
+                    "queries": {{
+                        "path": "@{{substring(triggerBody()[0].data.blobUrl, length('https://{storageName}.blob.core.windows.net/'))}}"
+                    }}
+                }},
+                "runAfter": {{}},
+                "type": "ApiConnection"
+            }},
+            "Send email": {{
+                "inputs": {{
+                    "body": {{
+                        "Body": "<p>@{{body('Generate SAS URL')?['WebUrl']}}</p>",
+                        "Importance": "Normal",
+                        "Subject": "Camera motion detected",
+                        "To": "{email}"
+                    }},
+                    "host": {{
+                        "connection": {{
+                            "name": "@parameters('$connections')['{emailConnectionName}']['connectionId']"
+                        }}
+                    }},
+                    "method": "post",
+                    "path": "/v2/Mail"
+                }},
+                "runAfter": {{
+                    "Generate SAS URL": [
+                        "Succeeded"
+                    ]
+                }},
+                "type": "ApiConnection"
+            }}
+        }}"""
+            
+            let parameters =
+                """{
+    "$connections": {
+        "defaultValue": {},
+        "type": "Object"
+    }
+}"""
+            
+            return $"""{{
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {actions},
+    "parameters": {parameters},
+    "triggers": {triggers}
+}}"""
+        }
+    
+    let toConnectionParameter (connection : AzureNative.Web.Connection) =
+        output {
+            let! connectionId = connection.Id
+            let! connectionProperties = connection.Properties
+            let! connectionName = connection.Name
+            
+            return $"""
+                "{connectionName}": {{
+                    "connectionId": "{connectionId}",
+                    "connectionName": "{connectionName}",
+                    "id": "{connectionProperties.Api.Id}"
+                }}"""
+        }
+    
+    let connections =
+        output {
+            let! blobConnection = blobConnection |> toConnectionParameter
+            let! emailConnection = emailConnection |> toConnectionParameter
+            
+            return $"""{{
+                {blobConnection},
+                {emailConnection}
+            }}"""
+        }
+        |> InputJson.op_Implicit
+        |> fun cs -> Inputs.workflowParameter { resourceType ParameterType.Object; value cs }
+    
     // Add MI
-    // "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
     let logicApp =
         workflow {
             name          (nameOne "logic")
             resourceGroup group.Name
             //managedServiceIdentity { resourceType ManagedServiceIdentityType.SystemAssigned }
             parameters [
-                "storage-account-name", Inputs.workflowParameter { value "" }
+            //    "storage-account-name", Inputs.workflowParameter { value "" }
+                "$connections"        , connections
             ]
-            definition    ($"""{{
-    "actions": {{}},
-    "parameters": {{}},
-    "triggers": {triggers}
-    }}
-}}""" |> InputJson.op_Implicit)
+            definition (workflowDefinition |> InputJson.op_Implicit)
         }
-    
+  
     let triggerUrl =
         ListWorkflowTriggerCallbackUrl.Invoke(ListWorkflowTriggerCallbackUrlInvokeArgs(
             ResourceGroupName = group.Name,
@@ -156,7 +306,6 @@ Deployment.run (fun () ->
     let testCommand =
         Output.Format($"""pulumi stack output PrivateKey --show-secrets > pk && chmod go-rwx pk && scp -o "PubkeyAcceptedKeyTypes=+ssh-rsa" -i pk Program.fs {storage.Name}.{container.Name}.{config["username"]}@{storage.Name}.blob.core.windows.net:/; rm pk""")
     
-    // fstab: user@host:/remote/path /local/path fuse.sshfs noauto,x-systemd.automount,_netdev,user,idmap=user,follow_symlinks,identityfile=/home/user/.ssh/id_rsa,allow_other,default_permissions,uid=USER_ID_N,gid=USER_GID_N 0 0
     dict [ "PrivateKey", sshPrivateKey.PrivateKeyOpenssh
            "Test"      , testCommand 
            "PublicKey" , sshPrivateKey.PublicKeyOpenssh ]

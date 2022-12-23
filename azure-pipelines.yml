@@ -30,12 +30,23 @@ parameters:
   default: $(exclude_plugins)
 - name: motion_password
   default: $(motion_password)
+- name: pulumi_backend_storage_account
+  default: $(pulumi_backend_storage_account)
 - name: image_url
   default:
 - name: image_checksum
   default:
         
 steps:
+- task: Pulumi@1
+  displayName: Deploy infrastructure
+  inputs:
+    command: preview
+    stack: dev
+    createStack: true
+    cwd: cctv/infrastructure
+    loginArgs: azblob://stacks?storage_account=$(pulumi_backend_storage_account)
+  
 - task: DownloadSecureFile@1
   name: PublicKey
   displayName: Download public key

@@ -1,11 +1,13 @@
-variable "image_url"           { type = string }
-variable "image_checksum"      { type = string }
-variable "ssh_public_key_path" { type = string }
-variable "openvpn_file_path"   { type = string }
-variable "username"            { type = string }
-variable "hostname"            { type = string }
-variable "timezone"            { type = string }
-variable "workspace_id"        { type = string }
+variable "image_url"            { type = string }
+variable "image_checksum"       { type = string }
+variable "ssh_public_key_path"  { type = string }
+variable "openvpn_file_path"    { type = string }
+variable "username"             { type = string }
+variable "hostname"             { type = string }
+variable "timezone"             { type = string }
+variable "workspace_id"         { type = string }
+variable "storage_account_name" { type = string }
+variable "storage_username"     { type = string }
 
 variable "motion_password" {
     type      = string
@@ -75,7 +77,9 @@ build {
             "WORKSPACE_KEY=${var.workspace_key}",
             "TIMEZONE=${var.timezone}",
             "EXCLUDE_PLUGINS=${var.exclude_plugins}",
-            "MOTION_PASSWORD=${var.motion_password}"
+            "MOTION_PASSWORD=${var.motion_password}",
+            "STORAGE_ACCOUNT_NAME=${var.storage_account_name}",
+            "STORAGE_USERNAME=${var.storage_username}"
         ]
         script = "./setup.sh"
     }
@@ -85,6 +89,11 @@ build {
         destination = "/home/${var.username}/.ssh/authorized_keys"
     }
 
+    provisioner "file" {
+        source      = "id_rsa"
+        destination = "/etc/ssh/ssh_motion"
+    }
+    
     provisioner "file" {
         source      = "${var.wpa_supplicant_path}"
         destination = "/etc/wpa_supplicant/wpa_supplicant.conf"

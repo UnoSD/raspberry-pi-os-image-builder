@@ -345,10 +345,6 @@ Deployment.run (fun () ->
         ))
     }
     
-    let testCommand =
-        Output.Format($"""pulumi stack output PrivateKey --show-secrets > pk && chmod go-rwx pk && scp -o "PubkeyAcceptedKeyTypes=+ssh-rsa" -i pk Program.fs {storage.Name}.{container.Name}.{config["username"]}@{storage.Name}.blob.core.windows.net:/; rm pk""")
-    
-    dict [ "PrivateKey", sshPrivateKey.PrivateKeyOpenssh
-           "Test"      , testCommand 
-           "PublicKey" , sshPrivateKey.PublicKeyOpenssh ]
+    dict [ "PrivateKey"    , sshPrivateKey.PrivateKeyOpenssh
+           "StorageAccount", storage.Name ]
 )

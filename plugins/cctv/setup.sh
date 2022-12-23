@@ -20,12 +20,16 @@ USERNAME=$USERNAME
 PASSWORD=$MOTION_PASSWORD
 HOSTNAME=$HOSTNAME
 
+# Generate cert in Pulumi and Packer copy to /etc/ssl/motion and publish /etc/ssl/motion/motion.pem
+# or in image.pkr.hcl:
+#    provisioner "file" {
+#        source      = "/etc/ssl/motion/motion.pem"
+#        destination = "motion.pem"
+#        direction   = "download"
+#    }
 mkdir /etc/ssl/motion
 cd /etc/ssl/motion
 openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout motion.key -outform pem -out motion.pem -subj "/CN=${HOSTNAME}"
-
-# PACKER COPY /etc/ssl/motion/motion.pem TO HOST
-# AZDO PUBLISH ARTIFACT
 
 apt-get -qqy --no-install-recommends install motion sshfs
 
@@ -33,11 +37,10 @@ envsubst /tmp/plugins/cctv/motion.conf > /etc/motion/motion.conf
 
 mkdir /var/{log,run}/motion
 
-chown motion:motion /var/{log,run}/motion
+mkdir $TARGET_DIR
+
+chown motion:motion /etc/ssh/ssh_motion $TARGET_DIR /var/{log,run}/motion
 
 systemctl -q enable motion
 
-# FROM PULUMI: pulumi stack output PrivateKey --show-secrets > pk
-#mkdir $TARGET_DIR
-# get uid e pid of motion and set below
-#ACCOUNT.motion.uno@ACCOUNT.blob.core.windows.net:/ /mnt/blobsftp fuse.sshfs user,idmap=user,follow_symlinks,identityfile=/home/uno/pk,allow_other,default_permissions,x-systemd.automount,x-systemd.mount-timeout=30,x-systemd.idle-timeout=0,reconnect,_netdev,uid=110,gid=114 0 0
+echo "$STORAGE_ACCOUNT_NAME.motion.$STORAGE_USERNAME@$STORAGE_ACCOUNT_NAME.blob.core.windows.net:/ /mnt/blobsftp fuse.sshfs user,idmap=user,follow_symlinks,identityfile=/etc/ssh/ssh_motion,allow_other,default_permissions,x-systemd.automount,x-systemd.mount-timeout=30,x-systemd.idle-timeout=0,reconnect,_netdev,uid=$(id -u motion),gid=$(id -g motion) 0 0" >> fstab

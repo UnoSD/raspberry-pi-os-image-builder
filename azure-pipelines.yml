@@ -32,15 +32,22 @@ parameters:
   default: $(motion_password)
         
 steps:
+# Run this step only when motion is included
 - task: Pulumi@1
   displayName: Deploy infrastructure
   inputs:
     azureSubscription: Pulumi backend
-    command: preview
+    command: up
     stack: dev
     createStack: true
     cwd: cctv/infrastructure
     loginArgs: azblob://stacks?storage_account=$(pulumi_backend_storage_account)
+  
+- script: |
+    pulumi stack output PrivateKey --show-secrets > id_rsa
+    echo "##vso[task.setvariable variable=storage_account_name;]$(pulumi stack output StorageAccount)"
+    echo "##vso[task.setvariable variable=storage_username;]$(pulumi config get username)"
+  displayName: Export SSH key and storage account info
   
 - task: DownloadSecureFile@1
   name: PublicKey
@@ -75,8 +82,11 @@ steps:
     echo "image_url = \"$IMAGE_URL\"" >> variables.auto.pkrvars.hcl
     echo "image_checksum = \"$IMAGE_SHA256\"" >> variables.auto.pkrvars.hcl
     
+    echo "storage_username = $(storage_username)" >> variables.auto.pkrvars.hcl
+    echo "storage_account_name = $(storage_account_name)" >> variables.auto.pkrvars.hcl
+    
     cat variables.auto.pkrvars.hcl
-  displayName: Set lastest versions of image variables
+  displayName: Set lastest versions of image variables and storage
 
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static kpartx qemu binfmt-support e2fsprogs dosfstools libarchive-tools

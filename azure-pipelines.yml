@@ -41,6 +41,7 @@ steps:
 - task: Pulumi@1
   displayName: Deploy infrastructure
   inputs:
+    azureSubscription: Pulumi backend
     command: preview
     stack: dev
     createStack: true

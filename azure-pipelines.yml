@@ -32,10 +32,6 @@ parameters:
   default: $(motion_password)
 - name: pulumi_backend_storage_account
   default: $(pulumi_backend_storage_account)
-- name: image_url
-  default:
-- name: image_checksum
-  default:
         
 steps:
 - task: Pulumi@1

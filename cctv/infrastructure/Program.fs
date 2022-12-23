@@ -181,7 +181,7 @@ Deployment.run (fun () ->
                     "method": "post",
                     "path": "/v2/datasets/AccountNameFromSettings/CreateSharedLinkByPath",
                     "queries": {{
-                        "path": "@{{substring(triggerBody()[0].data.blobUrl, {blobAsolutePathLength})}}"
+                        "path": "@{{substring(triggerBody()[0].data.blobUrl, parameters('blobBaseUrlLength'))}}"
                     }}
                 }},
                 "runAfter": {{}},
@@ -214,7 +214,7 @@ Deployment.run (fun () ->
                     "method": "post",
                     "path": "/v2/datasets/AccountNameFromSettings/CreateSharedLinkByPath",
                     "queries": {{
-                        "path": "@{{substring(triggerBody()[0].data.blobUrl, {blobAsolutePathLength})}}"
+                        "path": "@{{substring(triggerBody()[0].data.blobUrl, parameters('blobBaseUrlLength'))}}"
                     }}
                 }},
                 "runAfter": {{
@@ -246,12 +246,16 @@ Deployment.run (fun () ->
         }}"""
             
             let parameters =
-                """{
-    "$connections": {
-        "defaultValue": {},
+                $"""{{
+    "$connections": {{
+        "defaultValue": {{}},
         "type": "Object"
-    }
-}"""
+    }},
+    "blobBaseUrlLength": {{
+        "defaultValue": {blobAsolutePathLength},
+        "type": "Int"
+    }}
+}}"""
             
             return $"""{{
     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",

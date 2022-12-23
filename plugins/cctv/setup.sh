@@ -40,4 +40,4 @@ systemctl -q enable motion
 # FROM PULUMI: pulumi stack output PrivateKey --show-secrets > pk
 #mkdir $TARGET_DIR
 # get uid e pid of motion and set below
-#ACCOUNT.motion.uno@ACCOUNT.blob.core.windows.net:/ /mnt/blobsftp fuse.sshfs user,idmap=user,follow_symlinks,identityfile=/home/uno/pk,allow_other,default_permissions,x-systemd.automount,x-systemd.mount-timeout=30,x-systemd.idle-timeout=0,_netdev,uid=110,gid=114 0 0
+#ACCOUNT.motion.uno@ACCOUNT.blob.core.windows.net:/ /mnt/blobsftp fuse.sshfs user,idmap=user,follow_symlinks,identityfile=/home/uno/pk,allow_other,default_permissions,x-systemd.automount,x-systemd.mount-timeout=30,x-systemd.idle-timeout=0,reconnect,_netdev,uid=110,gid=114 0 0

@@ -163,6 +163,39 @@ Deployment.run (fun () ->
             
             let actions =
                 $"""{{
+           "Create SAS URL to update content type": {{
+                "inputs": {{
+                    "body": {{
+                        "Permissions": "Write"
+                    }},
+                    "host": {{
+                        "connection": {{
+                            "name": "@parameters('$connections')['{blobConnectionName}']['connectionId']"
+                        }}
+                    }},
+                    "method": "post",
+                    "path": "/v2/datasets/AccountNameFromSettings/CreateSharedLinkByPath",
+                    "queries": {{
+                        "path": "@{{substring(triggerBody()[0].data.blobUrl, length('https://{storageName}.blob.core.windows.net/'))}}"
+                    }}
+                }},
+                "runAfter": {{}},
+                "type": "ApiConnection"
+            }},
+            "Update blob content type to video": {{
+                "inputs": {{
+                    "headers": {{
+                        "Content-Length": "0",
+                        "x-ms-blob-content-type": "video/mp4"
+                    }},
+                    "method": "PUT",
+                    "uri": "@{{body('Create SAS URL to update content type')?['WebUrl']}}&comp=properties"
+                }},
+                "runAfter": {{
+                    "Create SAS URL to update content type": [ "Succeeded" ]
+                }},
+                "type": "Http"
+            }},
             "Generate SAS URL": {{
                 "inputs": {{
                     "body": {{
@@ -174,12 +207,14 @@ Deployment.run (fun () ->
                         }}
                     }},
                     "method": "post",
-                    "path": "/v2/datasets/{storageName}/CreateSharedLinkByPath",
+                    "path": "/v2/datasets/AccountNameFromSettings/CreateSharedLinkByPath",
                     "queries": {{
                         "path": "@{{substring(triggerBody()[0].data.blobUrl, length('https://{storageName}.blob.core.windows.net/'))}}"
                     }}
                 }},
-                "runAfter": {{}},
+                "runAfter": {{
+                    "Update blob content type to video": [ "Succeeded" ]
+                }},
                 "type": "ApiConnection"
             }},
             "Send email": {{
@@ -199,9 +234,7 @@ Deployment.run (fun () ->
                     "path": "/v2/Mail"
                 }},
                 "runAfter": {{
-                    "Generate SAS URL": [
-                        "Succeeded"
-                    ]
+                    "Generate SAS URL": [ "Succeeded" ]
                 }},
                 "type": "ApiConnection"
             }}

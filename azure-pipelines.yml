@@ -72,11 +72,11 @@ steps:
     IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/${IMAGE}${IMAGE_NAME}"
     IMAGE_SHA256="sha256:$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
 
-    sed -i "s#image_url = \"\"#image_url = \"$IMAGE_URL\"#" variables.auto.pkrvars.hcl
-    sed -i "s#image_checksum = \"\"#image_checksum = \"$IMAGE_SHA256\"#" variables.auto.pkrvars.hcl
+    echo "image_url = \"$IMAGE_URL\"" >> variables.auto.pkrvars.hcl
+    echo "image_checksum = \"$IMAGE_SHA256\"" >> variables.auto.pkrvars.hcl
     
     cat variables.auto.pkrvars.hcl
-  displayName: Set lastest versions
+  displayName: Set lastest versions of image variables
 
 - script: |
     sudo apt-get -qq -o=Dpkg::Use-Pty=0 install -y qemu-user-static kpartx qemu binfmt-support e2fsprogs dosfstools libarchive-tools

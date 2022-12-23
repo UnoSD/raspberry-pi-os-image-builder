@@ -154,12 +154,17 @@ Deployment.run (fun () ->
             }
         }
 
+    // Create typed Logic App actions,
+    // Find the schema and generate
+    // types with JsonProvider (possibly even computational expressions)
     let workflowDefinition =
         output {
             let! storageName = storage.Name
             let! blobConnectionName = blobConnection.Name
             let! emailConnectionName = emailConnection.Name
             let email = config["notificationEmail"]
+            
+            let blobAsolutePathLength = $"https://{storageName}.blob.core.windows.net/".Length
             
             let actions =
                 $"""{{
@@ -176,7 +181,7 @@ Deployment.run (fun () ->
                     "method": "post",
                     "path": "/v2/datasets/AccountNameFromSettings/CreateSharedLinkByPath",
                     "queries": {{
-                        "path": "@{{substring(triggerBody()[0].data.blobUrl, length('https://{storageName}.blob.core.windows.net/'))}}"
+                        "path": "@{{substring(triggerBody()[0].data.blobUrl, {blobAsolutePathLength})}}"
                     }}
                 }},
                 "runAfter": {{}},
@@ -209,7 +214,7 @@ Deployment.run (fun () ->
                     "method": "post",
                     "path": "/v2/datasets/AccountNameFromSettings/CreateSharedLinkByPath",
                     "queries": {{
-                        "path": "@{{substring(triggerBody()[0].data.blobUrl, length('https://{storageName}.blob.core.windows.net/'))}}"
+                        "path": "@{{substring(triggerBody()[0].data.blobUrl, {blobAsolutePathLength})}}"
                     }}
                 }},
                 "runAfter": {{

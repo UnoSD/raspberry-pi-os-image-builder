@@ -30,8 +30,6 @@ parameters:
   default: $(exclude_plugins)
 - name: motion_password
   default: $(motion_password)
-- name: pulumi_backend_storage_account
-  default: $(pulumi_backend_storage_account)
         
 steps:
 - task: Pulumi@1
@@ -69,15 +67,13 @@ steps:
     displayName: Setting ${{ parameter.Key }} in Packer variables file
 
 - script: |
-    if [ -z "$(grep image_url variables.auto.pkrvars.hcl | cut -d'"' -f2)" ]; then
-        IMAGE=$(curl -s 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
-        IMAGE_NAME=$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
-        IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/${IMAGE}${IMAGE_NAME}"
-        IMAGE_SHA256="sha256:$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
-    
-        sed -i "s#image_url = \"\"#image_url = \"$IMAGE_URL\"#" variables.auto.pkrvars.hcl
-        sed -i "s#image_checksum = \"\"#image_checksum = \"$IMAGE_SHA256\"#" variables.auto.pkrvars.hcl
-    fi
+    IMAGE=$(curl -s 'https://downloads.raspberrypi.org/raspios_lite_armhf/images/' | grep 'href="raspios_lite_armhf-' | cut -d'"' -f8 | sort | tail -n1)
+    IMAGE_NAME=$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE" | grep '.img.xz"' | cut -d'"' -f8)
+    IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/${IMAGE}${IMAGE_NAME}"
+    IMAGE_SHA256="sha256:$(curl -s "https://downloads.raspberrypi.org/raspios_lite_armhf/images/$IMAGE/${IMAGE_NAME}.sha256" | cut -d' ' -f1)"
+
+    sed -i "s#image_url = \"\"#image_url = \"$IMAGE_URL\"#" variables.auto.pkrvars.hcl
+    sed -i "s#image_checksum = \"\"#image_checksum = \"$IMAGE_SHA256\"#" variables.auto.pkrvars.hcl
     
     cat variables.auto.pkrvars.hcl
   displayName: Set lastest versions

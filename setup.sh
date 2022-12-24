@@ -42,7 +42,7 @@ mkdir /home/$USERNAME/.ssh
 sed -i 's/[#]PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 # Install software
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install jc
+apt-get -qq update && apt-get -qqy -o=Dpkg::Use-Pty=0 upgrade && apt-get -qqy --no-install-recommends install jc -o=Dpkg::Use-Pty=0
 
 rm -f /etc/motd
 rm -f /etc/motd.d/*

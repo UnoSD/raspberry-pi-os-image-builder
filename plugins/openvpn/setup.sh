@@ -1,7 +1,9 @@
 #!/bin/bash -xv
 
+realpath "$0"
+
 # Install software
-apt-get -qq update && apt-get -qqy upgrade && apt-get -qqy --no-install-recommends install openvpn
+apt-get -qqy --no-install-recommends -o=Dpkg::Use-Pty=0 install openvpn
 
 # Set up OpenVPN
 mv /tmp/azure.conf /etc/openvpn/client/

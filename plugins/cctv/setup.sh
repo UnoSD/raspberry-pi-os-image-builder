@@ -1,6 +1,6 @@
 #!/bin/bash -xv
 
-# Use blob sftp and event grid to trigger alarm
+realpath "$0"
 
 # Optimize codec to reduce CPU usage: https://wiki.gentoo.org/wiki/Motion#Video_codec
 # Send logs to database: https://wiki.gentoo.org/wiki/Motion#Database
@@ -31,7 +31,7 @@ mkdir /etc/ssl/motion
 cd /etc/ssl/motion
 openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout motion.key -outform pem -out motion.pem -subj "/CN=${HOSTNAME}"
 
-apt-get -qqy --no-install-recommends install motion sshfs
+apt-get -qqy --no-install-recommends -o=Dpkg::Use-Pty=0 install motion sshfs
 
 envsubst /tmp/plugins/cctv/motion.conf > /etc/motion/motion.conf
 

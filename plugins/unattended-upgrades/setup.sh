@@ -1,7 +1,9 @@
 #!/bin/bash -xv
 
+realpath "$0"
+
 # Install software
-apt-get -qqy --no-install-recommends install unattended-upgrades
+apt-get -qqy --no-install-recommends -o=Dpkg::Use-Pty=0 install unattended-upgrades
 
 # Unattended upgrades (wrong files, WIP)
 cat > /etc/auto_upgrade <<EOF

@@ -58,6 +58,7 @@ steps:
   inputs:
     azureSubscription: Pulumi backend
     scriptType: bash
+    scriptLocation: inlineScript
     inlineScript: |
       cd cctv/infrastructure
       pulumi login azblob://stacks?storage_account=$(pulumi_backend_storage_account)

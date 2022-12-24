@@ -60,6 +60,7 @@ steps:
     scriptType: bash
     scriptLocation: inlineScript
     inlineScript: |
+      export PULUMI_CONFIG_PASSPHRASE=$(PULUMI_CONFIG_PASSPHRASE)
       cd cctv/infrastructure
       pulumi login azblob://stacks?storage_account=$(pulumi_backend_storage_account)
       pulumi stack select dev

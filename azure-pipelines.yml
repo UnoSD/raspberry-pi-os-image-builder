@@ -37,12 +37,15 @@ steps:
   displayName: Deploy infrastructure
   inputs:
     azureSubscription: Pulumi backend
-    command: up
+    command: preview
     stack: dev
     createStack: true
     cwd: cctv/infrastructure
     loginArgs: azblob://stacks?storage_account=$(pulumi_backend_storage_account)
-  
+
+- script: |
+    echo "##vso[task.complete result=Failed;]The reason you quit"
+
 - script: |
     pulumi stack output PrivateKey --show-secrets > id_rsa
     echo "##vso[task.setvariable variable=storage_account_name;]$(pulumi stack output StorageAccount)"

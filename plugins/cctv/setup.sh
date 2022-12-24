@@ -43,4 +43,4 @@ chown motion:motion /etc/ssh/ssh_motion $TARGET_DIR /var/{log,run}/motion
 
 systemctl -q enable motion
 
-echo "$STORAGE_ACCOUNT_NAME.motion.$STORAGE_USERNAME@$STORAGE_ACCOUNT_NAME.blob.core.windows.net:/ /mnt/blobsftp fuse.sshfs user,idmap=user,follow_symlinks,identityfile=/etc/ssh/ssh_motion,allow_other,default_permissions,x-systemd.automount,x-systemd.mount-timeout=30,x-systemd.idle-timeout=0,reconnect,_netdev,uid=$(id -u motion),gid=$(id -g motion) 0 0" >> fstab
+echo "$STORAGE_ACCOUNT_NAME.motion.$STORAGE_USERNAME@$STORAGE_ACCOUNT_NAME.blob.core.windows.net:/ /mnt/blobsftp fuse.sshfs user,idmap=user,follow_symlinks,identityfile=/etc/ssh/ssh_motion,allow_other,default_permissions,x-systemd.automount,x-systemd.mount-timeout=30,x-systemd.idle-timeout=0,reconnect,_netdev,uid=$(id -u motion),gid=$(id -g motion) 0 0" >> /etc/fstab

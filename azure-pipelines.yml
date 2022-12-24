@@ -32,7 +32,18 @@ parameters:
   default: $(motion_password)
         
 steps:
-# Run this step only when motion is included
+# Run Pulumi steps only when motion is included
+- task: Pulumi@1
+  displayName: Set configuration
+  inputs:
+    azureSubscription: Pulumi backend
+    command: config
+    args: config set notificationEmail $(notification_email)
+    stack: dev
+    createStack: true
+    cwd: cctv/infrastructure
+    loginArgs: azblob://stacks?storage_account=$(pulumi_backend_storage_account)
+  
 - task: Pulumi@1
   displayName: Deploy infrastructure
   inputs:

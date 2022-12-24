@@ -49,6 +49,7 @@ steps:
   inputs:
     azureSubscription: Pulumi backend
     command: up
+    args: --yes
     stack: dev
     createStack: true
     cwd: cctv/infrastructure

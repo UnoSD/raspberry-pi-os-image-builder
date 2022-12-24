@@ -103,8 +103,8 @@ steps:
     echo "image_url = \"$IMAGE_URL\"" >> variables.auto.pkrvars.hcl
     echo "image_checksum = \"$IMAGE_SHA256\"" >> variables.auto.pkrvars.hcl
     
-    echo "storage_username = $(storage_username)" >> variables.auto.pkrvars.hcl
-    echo "storage_account_name = $(storage_account_name)" >> variables.auto.pkrvars.hcl
+    echo "storage_username = \"$(storage_username)\"" >> variables.auto.pkrvars.hcl
+    echo "storage_account_name = \"$(storage_account_name)\"" >> variables.auto.pkrvars.hcl
     
     cat variables.auto.pkrvars.hcl
   displayName: Set lastest versions of image variables and storage

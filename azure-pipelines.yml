@@ -65,7 +65,7 @@ steps:
       pulumi login azblob://stacks?storage_account=$(pulumi_backend_storage_account)
       pulumi stack select dev
       
-      pulumi stack output PrivateKey --show-secrets > id_rsa
+      pulumi stack output PrivateKey --show-secrets > ../../id_rsa
       echo "##vso[task.setvariable variable=storage_account_name;]$(pulumi stack output StorageAccount)"
       echo "##vso[task.setvariable variable=storage_username;]$(pulumi config get username)"
   displayName: Export SSH key and storage account info

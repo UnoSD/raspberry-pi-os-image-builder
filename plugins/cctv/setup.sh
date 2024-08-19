@@ -33,6 +33,12 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout motion.key -
 
 apt-get -qqy --no-install-recommends -o=Dpkg::Use-Pty=0 install motion sshfs
 
+wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+dpkg -i packages-microsoft-prod.deb
+apt-get update
+apt-get install libfuse3-dev fuse3
+apt-get install blobfuse2
+
 envsubst /tmp/plugins/cctv/motion.conf > /etc/motion/motion.conf
 
 mkdir /var/{log,run}/motion

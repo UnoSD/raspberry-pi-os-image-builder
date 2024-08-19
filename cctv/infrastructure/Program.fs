@@ -47,22 +47,6 @@ Deployment.run (fun () ->
     let subId =
         GetClientConfig.InvokeAsync().Result.SubscriptionId
     
-    let setSftpUrl = Output.Format($"https://management.azure.com/subscriptions/{subId}/resourceGroups/{group.Name}/providers/Microsoft.Storage/storageAccounts/{storage.Name}?api-version=2021-09-01")
-    let setSftpBody enabled = $""" "{{ "properties": {{ "isSftpEnabled": %b{enabled} }} }}" """
-    let setSftpCliCommand enabled = Output.Format($"az rest --method PATCH --body {setSftpBody enabled} --url {setSftpUrl} --headers Content-Type=application/json")
-    
-    command {
-        name   (nameOne "sasftp")
-        create (setSftpCliCommand true)
-        delete (setSftpCliCommand false)
-    }
-    
-    let sshPrivateKey =
-        privateKey {
-            name      (nameOne "pk")
-            algorithm "RSA"
-        }
-    
     localUser {
         name          (nameOne "lu")
         resourceGroup group.Name
@@ -345,6 +329,5 @@ Deployment.run (fun () ->
         ))
     }
     
-    dict [ "PrivateKey"    , sshPrivateKey.PrivateKeyOpenssh
-           "StorageAccount", storage.Name ]
+    dict [ "StorageAccount", storage.Name ]
 )

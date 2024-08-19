@@ -46,30 +46,7 @@ Deployment.run (fun () ->
     
     let subId =
         GetClientConfig.InvokeAsync().Result.SubscriptionId
-    
-    localUser {
-        name          (nameOne "lu")
-        resourceGroup group.Name
-        accountName   storage.Name
-        hasSshKey     true
-        username      config["username"]
-        //homeDirectory "/" // Should help remove the container name from the username, but did not work
         
-        permissionScopes [
-            permissionScope {
-                resourceName container.Name
-                permissions  "crwdl"
-                service      "blob"
-            }
-        ]
-        
-        sshAuthorizedKeys [
-            sshPublicKey {
-                key sshPrivateKey.PublicKeyOpenssh
-            }
-        ]
-    }
-    
     let triggerName =
         "manual"
 

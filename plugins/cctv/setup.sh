@@ -33,11 +33,14 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout motion.key -
 
 apt-get -qqy --no-install-recommends -o=Dpkg::Use-Pty=0 install motion sshfs
 
+#https://learn.microsoft.com/en-us/azure/storage/blobs/blobfuse2-how-to-deploy?tabs=Ubuntu
 wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
 apt-get update
 apt-get install libfuse3-dev fuse3
 apt-get install blobfuse2
+#https://learn.microsoft.com/en-us/answers/questions/1351939/how-can-i-get-permanent-blob-container-mount-with
+
 
 envsubst /tmp/plugins/cctv/motion.conf > /etc/motion/motion.conf
 
